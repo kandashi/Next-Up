@@ -20,61 +20,62 @@ Hooks.on('init', () => {
         default: false,
         config: true,
     });
-})
-
-Hooks.on("updateCombat", async (combat, changed, options, userId) => {
-
+  })
+  
+  Hooks.on("updateCombat", async (combat, changed, options, userId) => {
+  
     if (!("turn" in changed)) {
-      return;
+        return;
     }
-
+  
     const firstGm = game.users.find((u) => u.isGM && u.active);
     if (firstGm && game.user === firstGm) {
   
-      if (game.combats.get(combat.id).data.combatants.length == 0) return;
+        if (game.combats.get(combat.id).data.combatants.length == 0) return;
   
-
-      const nextTurn = combat.turns[changed.turn];
-      const previousTurn = combat.turns[changed.turn - 1 > -1 ? changed.turn - 1 : combat.turns.length -1]
-
-      let nextTokenId = null;
-      if (getProperty(nextTurn, "tokenId")) {
-        nextTokenId = nextTurn.tokenId;
-      }
-      else {
-        nextTokenId = getProperty(nextTurn, token._id);
-      }
-
-      let currentToken = canvas.tokens.get(nextTokenId);
-      let previousToken = canvas.tokens.get(previousTurn.tokenId)
-
-      if (!currentToken.actor) {
-        return;
-      }
-
+  
+        const nextTurn = combat.turns[changed.turn];
+        const previousTurn = combat.turns[changed.turn - 1 > -1 ? changed.turn - 1 : combat.turns.length - 1]
+  
+        let nextTokenId = null;
+        if (getProperty(nextTurn, "tokenId")) {
+            nextTokenId = nextTurn.tokenId;
+        }
+        else {
+            nextTokenId = getProperty(nextTurn, token._id);
+        }
+  
+        let currentToken = canvas.tokens.get(nextTokenId);
+        let previousToken = canvas.tokens.get(previousTurn.tokenId)
+  
+        if (!currentToken.actor) {
+            return;
+        }
+  
         const combatFocus = game.settings.get('Combat-Focus', 'combatFocus')
         const closeAll = game.settings.get('Combat-Focus', 'close-all')
-        if(combatFocus !== "0") {
-          await sleep(5)
-          await currentToken.control()
-          canvas.animatePan({x: currentToken.center.x, y: currentToken.center.y, duration: 250});
-          let sheet = await currentToken.actor.sheet.render(true)
-          let rightPos = window.innerWidth - sheet.position.width - 310;
-          await sleep(5);
-          if(combatFocus === "1"){
-            sheet.setPosition({ left: 107, top: 46});
-            if(closeAll) await ui.windows.filter(i => i.actor).close(true)
-            else await previousToken.actor.sheet.close(true)
-          }
-          if(combatFocus === "2"){
-            sheet.setPosition({ left: rightPos, top: 46});
-            if(closeAll) await ui.windows.filter(i => i.actor).close(true)
-            else await previousToken.actor.sheet.close(true)
-          }
+        let currentWindows = Object.values(ui.windows)
+        if (combatFocus !== "0") {
+            await sleep(5)
+            await currentToken.control()
+            canvas.animatePan({ x: currentToken.center.x, y: currentToken.center.y, duration: 250 });
+            let sheet = await currentToken.actor.sheet.render(true)
+            let rightPos = window.innerWidth - sheet.position.width - 310;
+            await sleep(5);
+            if (combatFocus === "1") {
+                sheet.setPosition({ left: 107, top: 46 });
+                if (closeAll) for (let window of currentWindows) if (window.actor && window.actor.id !== currentToken.actor.id)  window.close(true)
+                else await previousToken.actor.sheet.close(true)
+            }
+            if (combatFocus === "2") {
+                sheet.setPosition({ left: rightPos, top: 46 });
+                if (closeAll) for (let window of currentWindows) if (window.actor && window.actor.id !== currentToken.actor.id)  window.close(true) 
+                else await previousToken.actor.sheet.close(true)
+            }
   
-          async function sleep(millis) {
-            return new Promise(r => setTimeout(r, millis));
-          }
+            async function sleep(millis) {
+                return new Promise(r => setTimeout(r, millis));
+            }
         }
-      }
+    }
   });
