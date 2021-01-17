@@ -12,6 +12,15 @@ Hooks.on('init', () => {
         default: "0",
         config: true,
     });
+
+    game.settings.register("Combat-Focus", "close-old", {
+      name: 'Close old combatant actor sheet',
+      hint: 'Close all previous combatants sheet on turn change',
+      scope: 'world',
+      type: Boolean,
+      default: false,
+      config: true,
+  });
     game.settings.register("Combat-Focus", "close-all", {
         name: 'Close all actor sheets',
         hint: 'Close all open actor sheet on turn change',
@@ -20,6 +29,7 @@ Hooks.on('init', () => {
         default: false,
         config: true,
     });
+
   })
   
   Hooks.on("updateCombat", async (combat, changed, options, userId) => {
@@ -54,6 +64,7 @@ Hooks.on('init', () => {
   
         const combatFocus = game.settings.get('Combat-Focus', 'combatFocus')
         const closeAll = game.settings.get('Combat-Focus', 'close-all')
+        const closeOld = game.settings.get('Combat-Focus', 'close-old')
         let currentWindows = Object.values(ui.windows)
         if (combatFocus !== "0") {
             await sleep(5)
@@ -65,12 +76,13 @@ Hooks.on('init', () => {
             if (combatFocus === "1") {
                 sheet.setPosition({ left: 107, top: 46 });
                 if (closeAll) for (let window of currentWindows) if (window.actor && window.actor.id !== currentToken.actor.id)  window.close(true)
-                else await previousToken.actor.sheet.close(true)
+                if(closeOld) await previousToken.actor.sheet.close(true)
+
             }
             if (combatFocus === "2") {
                 sheet.setPosition({ left: rightPos, top: 46 });
                 if (closeAll) for (let window of currentWindows) if (window.actor && window.actor.id !== currentToken.actor.id)  window.close(true) 
-                else await previousToken.actor.sheet.close(true)
+                if(closeOld) await previousToken.actor.sheet.close(true)
             }
   
             async function sleep(millis) {
