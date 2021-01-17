@@ -14,7 +14,7 @@
     ],
     "url": "https://github.com/kandashi/Combat-Focus",
     "manifest": "https://raw.githubusercontent.com/kandashi/Combat-Focus/main/module.json",
-    "download": "https://github.com/kandashi/Combat-Focus/raw/main/module.zip",
+    "download": "https://github.com/kandashi/Combat-Focus/archive/main.zip",
     "minimumCoreVersion": "0.7.5",
     "compatibleCoreVersion": "0.7.9"
 }
