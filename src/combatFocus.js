@@ -29,7 +29,7 @@ Hooks.on('init', () => {
         default: false,
         config: true,
     });
-    
+
   })
   
   Hooks.on("updateCombat", async (combat, changed, options, userId) => {
@@ -77,6 +77,7 @@ Hooks.on('init', () => {
                 sheet.setPosition({ left: 107, top: 46 });
                 if (closeAll) for (let window of currentWindows) if (window.actor && window.actor.id !== currentToken.actor.id)  window.close(true)
                 if(closeOld) await previousToken.actor.sheet.close(true)
+
             }
             if (combatFocus === "2") {
                 sheet.setPosition({ left: rightPos, top: 46 });
