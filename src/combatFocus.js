@@ -1,5 +1,5 @@
 Hooks.on('init', () => {
-    game.settings.register("Combat-Focus", "combatFocus", {
+    game.settings.register("Next-Up", "combatFocus", {
         name: 'Combatant Focus',
         hint: 'Auto focuses to the current combatant in combat and opens their character sheet in the specified position',
         scope: 'world',
@@ -13,7 +13,7 @@ Hooks.on('init', () => {
         config: true,
     });
 
-    game.settings.register("Combat-Focus", "close-old", {
+    game.settings.register("Next-Up", "close-old", {
       name: 'Close old combatant actor sheet',
       hint: 'Close all previous combatants sheet on turn change',
       scope: 'world',
@@ -21,7 +21,7 @@ Hooks.on('init', () => {
       default: false,
       config: true,
   });
-    game.settings.register("Combat-Focus", "close-all", {
+    game.settings.register("Next-Up", "close-all", {
         name: 'Close all actor sheets',
         hint: 'Close all open actor sheet on turn change',
         scope: 'world',
@@ -62,9 +62,9 @@ Hooks.on('init', () => {
             return;
         }
   
-        const combatFocus = game.settings.get('Combat-Focus', 'combatFocus')
-        const closeAll = game.settings.get('Combat-Focus', 'close-all')
-        const closeOld = game.settings.get('Combat-Focus', 'close-old')
+        const combatFocus = game.settings.get('Next-Up', 'combatFocus')
+        const closeAll = game.settings.get('Next-Up', 'close-all')
+        const closeOld = game.settings.get('Next-Up', 'close-old')
         let currentWindows = Object.values(ui.windows)
         if (combatFocus !== "0") {
             await sleep(5)

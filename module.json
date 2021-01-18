@@ -1,8 +1,8 @@
 {
-    "name": "Combat-Focus",
-    "title": "Combat Focus",
-    "description": "Auto focus to current combatant",
-    "version": "0.0.23",
+    "name": "Next-Up",
+    "title": "Next Up",
+    "description": "Auto focus to current combatant for GM clients",
+    "version": "0.0.24",
     "authors": [
       {
         "name": "Kandashi",
@@ -12,9 +12,9 @@
     "scripts": [
         "/src/combatFocus.js"
     ],
-    "url": "https://github.com/kandashi/Combat-Focus",
-    "manifest": "https://raw.githubusercontent.com/kandashi/Combat-Focus/main/module.json",
-    "download": "https://github.com/kandashi/Combat-Focus/archive/main.zip",
+    "url": "https://github.com/kandashi/Next-Up",
+    "manifest": "https://raw.githubusercontent.com/kandashi/Next-Up/main/module.json",
+    "download": "https://github.com/kandashi/Next-Up/archive/main.zip",
     "minimumCoreVersion": "0.7.5",
     "compatibleCoreVersion": "0.7.9"
 }
