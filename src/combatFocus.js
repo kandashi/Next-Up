@@ -72,7 +72,7 @@ Hooks.on('init', () => {
             canvas.animatePan({ x: currentToken.center.x, y: currentToken.center.y, duration: 250 });
             let sheet = await currentToken.actor.sheet.render(true)
             let rightPos = window.innerWidth - sheet.position.width - 310;
-            await sleep(5);
+            await sleep(10);
             if (combatFocus === "1") {
                 sheet.setPosition({ left: 107, top: 46 });
                 if (closeAll) for (let window of currentWindows) if (window.actor && window.actor.id !== currentToken.actor.id)  window.close(true)
