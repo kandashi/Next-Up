@@ -57,6 +57,13 @@ Hooks.on('init', () => {
         default: "0",
         config: true,
     });
+    game.settings.register("Next-Up", "playerPan", {
+        name: 'Pan Players to Combatant',
+        scope: 'world', // could be client scope too
+        type: Boolean,
+        default: false,
+        config: true,
+    });
     game.settings.register("Next-Up", "removePin", {
         name: 'Remove Pin Icon From Character Sheets',
         scope: 'world',
@@ -64,13 +71,10 @@ Hooks.on('init', () => {
         default: false,
         config: true,
     });
-
-
-
 })
 
 Hooks.on("renderActorSheet", (app, html, data) => {
-    if (game.settings.get("Next-Up", "removePin")) return;
+    if (game.settings.get('Next-Up', 'removePin')) return;
 
     let title = html.find('.window-title');
     let buttons = `
@@ -99,45 +103,45 @@ if (typeof ForgeVTT !== 'undefined') delay = 15;
 
 Hooks.on("updateCombat", async (combat, changed, options, userId) => {
 
-    if (!("turn" in changed) && changed.round !== 1) {
+    if (!("turn" in changed) && changed.round !== 1) return;
+    if (game.combats.get(combat.id).data.combatants.length == 0) return;
+
+    const combatFocusPostion = game.settings.get('Next-Up', 'combatFocusPostion');
+    const combatFocusPan = game.settings.get('Next-Up', 'combatPan');
+    const closeWhich = game.settings.get('Next-Up', 'closewhich');
+    const closeType = game.settings.get('Next-Up', 'closetype');
+    const combatFocusType = game.settings.get('Next-Up', 'combatFocusType');
+    const playerPan = game.settings.get('Next-Up', 'playerPan');
+    let currentWindows = Object.values(ui.windows);
+
+    let nextTurn = combat.turns[changed.turn];
+    if (changed.turn === undefined) nextTurn = combat.turns[0]
+    const previousTurn = combat.turns[changed.turn - 1 > -1 ? changed.turn - 1 : combat.turns.length - 1]
+
+    let nextTokenId = null;
+    if (getProperty(nextTurn, "tokenId")) {
+        nextTokenId = nextTurn.tokenId;
+    }
+    else {
+        nextTokenId = getProperty(nextTurn, token._id);
+    }
+
+    let currentToken = canvas.tokens.get(nextTokenId);
+    let previousToken = canvas.tokens.get(previousTurn.tokenId)
+
+    if (!currentToken.actor) {
         return;
     }
 
+
+
+    await sleep(delay);
+    await currentToken.control();
     const firstGm = game.users.find((u) => u.isGM && u.active);
     if (firstGm && game.user === firstGm) {
 
-        if (game.combats.get(combat.id).data.combatants.length == 0) return;
-
-
-        let nextTurn = combat.turns[changed.turn];
-        if (changed.turn === undefined) nextTurn = combat.turns[0]
-        const previousTurn = combat.turns[changed.turn - 1 > -1 ? changed.turn - 1 : combat.turns.length - 1]
-
-        let nextTokenId = null;
-        if (getProperty(nextTurn, "tokenId")) {
-            nextTokenId = nextTurn.tokenId;
-        }
-        else {
-            nextTokenId = getProperty(nextTurn, token._id);
-        }
-
-        let currentToken = canvas.tokens.get(nextTokenId);
-        let previousToken = canvas.tokens.get(previousTurn.tokenId)
-
-        if (!currentToken.actor) {
-            return;
-        }
-
-        const combatFocusPostion = game.settings.get('Next-Up', 'combatFocusPostion')
-        const combatFocusPan = game.settings.get('Next-Up', 'combatPan')
-        const closeWhich = game.settings.get('Next-Up', 'closewhich')
-        const closeType = game.settings.get('Next-Up', 'closetype')
-        const combatFocusType = game.settings.get('Next-Up', 'combatFocusType')
-        let currentWindows = Object.values(ui.windows)
-
-        await sleep(delay);
-        await currentToken.control();
         if (combatFocusPan) canvas.animatePan({ x: currentToken.center.x, y: currentToken.center.y, duration: 250 });
+
         if (combatFocusPostion !== "0") {
             let currentSheet = currentWindows.filter(i => i.token?.id === currentToken.id);
             let sheet;
@@ -180,16 +184,20 @@ Hooks.on("updateCombat", async (combat, changed, options, userId) => {
                 break;
             case "2": for (let window of currentWindows) if (window.actor && window.actor.id !== currentToken.actor.id) CloseSheet(window.actor.data.token.actorLink, window)
         }
+    }
 
-        async function CloseSheet(link, sheet) {
-            let sheetPinned = sheet.pinned === true ? true : false
-            if (link && (closeType === "1" || closeType === "2") && !sheetPinned) sheet.close()
-            if (!link && (closeType === "0" || closeType === "2") && !sheetPinned) sheet.close()
-        }
+    if (!game.user.isGM && playerPan && combatFocusPan && currentToken.isVisible) {
+        canvas.animatePan({ x: currentToken.center.x, y: currentToken.center.y, duration: 250 });
+    }
 
-        async function sleep(millis) {
-            return new Promise(r => setTimeout(r, millis));
-        }
+    async function CloseSheet(link, sheet) {
+        let sheetPinned = sheet.pinned === true ? true : false
+        if (link && (closeType === "1" || closeType === "2") && !sheetPinned) sheet.close()
+        if (!link && (closeType === "0" || closeType === "2") && !sheetPinned) sheet.close()
+    }
+
+    async function sleep(millis) {
+        return new Promise(r => setTimeout(r, millis));
     }
 
 });
