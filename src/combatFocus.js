@@ -56,7 +56,6 @@ Hooks.on('init', () => {
 
 Hooks.on("renderActorSheet", (app, html, data) => {
     let title = html.find('.window-title');
-    console.log(data)
     let buttons = `
 <button id="nextup-pin" class="nextup-button" title="Pin Actor Sheet" style="height:30px;width:30px">
         <i id="nextup-pin-icon" style="color: white" class="fas fa-thumbtack"></i>
@@ -90,9 +89,9 @@ Hooks.on("updateCombat", async (combat, changed, options, userId) => {
 
         if (game.combats.get(combat.id).data.combatants.length == 0) return;
 
-        
+
         let nextTurn = combat.turns[changed.turn];
-        if(changed.turn === undefined) nextTurn = combat.turns[0]
+        if (changed.turn === undefined) nextTurn = combat.turns[0]
         const previousTurn = combat.turns[changed.turn - 1 > -1 ? changed.turn - 1 : combat.turns.length - 1]
 
         let nextTokenId = null;
@@ -123,38 +122,38 @@ Hooks.on("updateCombat", async (combat, changed, options, userId) => {
             let currentSheet = currentWindows.filter(i => i.token?.id === currentToken.id);
             let sheet;
             if (currentSheet.length === 0)
-                switch(combatFocusType){
-                    case "0":  sheet = await currentToken.actor.sheet.render(true);
-                    break;
+                switch (combatFocusType) {
+                    case "0": sheet = await currentToken.actor.sheet.render(true);
+                        break;
                     case "1": {
-                        if(currentToken.data.actorLink === false) sheet = await currentToken.actor.sheet.render(true);
+                        if (currentToken.data.actorLink === false) sheet = await currentToken.actor.sheet.render(true);
                         else sheet = false;
                     }
-                    break;
-                    case "2" : {
-                        if(currentToken.actor.hasPlayerOwner === false)  sheet =await currentToken.actor.sheet.render(true);
+                        break;
+                    case "2": {
+                        if (currentToken.actor.hasPlayerOwner === false) sheet = await currentToken.actor.sheet.render(true);
                         else sheet = false;
                     }
-                    break;
+                        break;
                 }
-            else  sheet = currentSheet[0];
-            if(sheet){
-            let rightPos = window.innerWidth - sheet.position.width - 310;
+            else sheet = currentSheet[0];
+            if (sheet) {
+                let rightPos = window.innerWidth - sheet.position.width - 310;
 
-            await sleep(10);
-            let sheetPinned = sheet.pinned === true ? true : false;
-            switch (combatFocusPostion) {
-                case "1": if (!sheetPinned) sheet.setPosition({ left: 107, top: 46 });
-                    break;
-                case "2": if (!sheetPinned) sheet.setPosition({ left: rightPos, top: 46 });
-            }
+                await sleep(10);
+                let sheetPinned = sheet.pinned === true ? true : false;
+                switch (combatFocusPostion) {
+                    case "1": if (!sheetPinned) sheet.setPosition({ left: 107, top: 46 });
+                        break;
+                    case "2": if (!sheetPinned) sheet.setPosition({ left: rightPos, top: 46 });
+                }
             }
         }
         switch (closeWhich) {
             case "0": break;
             case "1": {
-                let window = currentWindows.find(i => i.token.id === previousToken.id);
-                CloseSheet(previousToken.actor.data.token.actorLink, window)
+                let window = (currentWindows.find(i => i.actor?.token?.id === previousToken.id) ||currentWindows.find(i => i.actor?.id === previousToken.actor.id)) ;
+                if(window) CloseSheet(previousToken.actor.data.token.actorLink, window)
             }
                 break;
             case "2": for (let window of currentWindows) if (window.actor && window.actor.id !== currentToken.actor.id) CloseSheet(window.actor.data.token.actorLink, window)
