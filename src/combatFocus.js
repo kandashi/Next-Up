@@ -13,7 +13,7 @@ Hooks.on('init', () => {
         scope: 'world',
         type: String,
         choices: {
-            "0": "Off",
+            "0": "Disable opening character sheet",
             "1": "Top Left",
             "2": "Top Right",
         },
@@ -57,12 +57,21 @@ Hooks.on('init', () => {
         default: "0",
         config: true,
     });
+    game.settings.register("Next-Up", "removePin", {
+        name: 'Remove Pin Icon From Character Sheets',
+        scope: 'world',
+        type: Boolean,
+        default: false,
+        config: true,
+    });
 
 
 
 })
 
 Hooks.on("renderActorSheet", (app, html, data) => {
+    if (game.settings.get("Next-Up", "removePin")) return;
+
     let title = html.find('.window-title');
     let buttons = `
 <button id="nextup-pin" class="nextup-button" title="Pin Actor Sheet" style="height:30px;width:30px">
@@ -83,9 +92,10 @@ Hooks.on("renderActorSheet", (app, html, data) => {
         }
 
     })
-})
+});
+
 let delay = 5;
-if (typeof ForgeVTT !== 'undefined') delay = 15
+if (typeof ForgeVTT !== 'undefined') delay = 15;
 
 Hooks.on("updateCombat", async (combat, changed, options, userId) => {
 
@@ -125,10 +135,10 @@ Hooks.on("updateCombat", async (combat, changed, options, userId) => {
         const combatFocusType = game.settings.get('Next-Up', 'combatFocusType')
         let currentWindows = Object.values(ui.windows)
 
+        await sleep(delay);
+        await currentToken.control();
+        if (combatFocusPan) canvas.animatePan({ x: currentToken.center.x, y: currentToken.center.y, duration: 250 });
         if (combatFocusPostion !== "0") {
-            await sleep(delay);
-            await currentToken.control();
-            if (combatFocusPan) canvas.animatePan({ x: currentToken.center.x, y: currentToken.center.y, duration: 250 });
             let currentSheet = currentWindows.filter(i => i.token?.id === currentToken.id);
             let sheet;
             if (currentSheet.length === 0)
@@ -160,6 +170,7 @@ Hooks.on("updateCombat", async (combat, changed, options, userId) => {
                 }
             }
         }
+
         switch (closeWhich) {
             case "0": break;
             case "1": {
