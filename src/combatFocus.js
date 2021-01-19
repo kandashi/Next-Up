@@ -136,10 +136,10 @@ Hooks.on("updateCombat", async (combat, changed, options, userId) => {
 
 
     await sleep(delay);
-    await currentToken.control();
     const firstGm = game.users.find((u) => u.isGM && u.active);
     if (firstGm && game.user === firstGm) {
 
+        await currentToken.control();
         if (combatFocusPan) canvas.animatePan({ x: currentToken.center.x, y: currentToken.center.y, duration: 250 });
 
         if (combatFocusPostion !== "0") {
