@@ -1,7 +1,15 @@
 Hooks.on('init', () => {
+    game.settings.register("Next-Up", "combatPan", {
+        name: 'Pan To Combatant',
+        hint: 'Auto focuses to the current combatant ',
+        scope: 'world',
+        type: Boolean,
+        default: true,
+        config: true,
+    });
     game.settings.register("Next-Up", "combatFocusPostion", {
-        name: 'Combatant Focus Position',
-        hint: 'Auto focuses to the current combatant in combat and opens their character sheet in the specified position',
+        name: 'Sheet Position',
+        hint: 'Postion Of The Opened Character Sheet',
         scope: 'world',
         type: String,
         choices: {
@@ -111,6 +119,7 @@ Hooks.on("updateCombat", async (combat, changed, options, userId) => {
         }
 
         const combatFocusPostion = game.settings.get('Next-Up', 'combatFocusPostion')
+        const combatFocusPan = game.settings.get('Next-Up', 'combatPan')
         const closeWhich = game.settings.get('Next-Up', 'closewhich')
         const closeType = game.settings.get('Next-Up', 'closetype')
         const combatFocusType = game.settings.get('Next-Up', 'combatFocusType')
@@ -119,7 +128,7 @@ Hooks.on("updateCombat", async (combat, changed, options, userId) => {
         if (combatFocusPostion !== "0") {
             await sleep(delay);
             await currentToken.control();
-            canvas.animatePan({ x: currentToken.center.x, y: currentToken.center.y, duration: 250 });
+            if (combatFocusPan) canvas.animatePan({ x: currentToken.center.x, y: currentToken.center.y, duration: 250 });
             let currentSheet = currentWindows.filter(i => i.token?.id === currentToken.id);
             let sheet;
             if (currentSheet.length === 0)
@@ -154,8 +163,8 @@ Hooks.on("updateCombat", async (combat, changed, options, userId) => {
         switch (closeWhich) {
             case "0": break;
             case "1": {
-                let window = (currentWindows.find(i => i.actor?.token?.id === previousToken.id) ||currentWindows.find(i => i.actor?.id === previousToken.actor.id)) ;
-                if(window) CloseSheet(previousToken.actor.data.token.actorLink, window)
+                let window = (currentWindows.find(i => i.actor?.token?.id === previousToken.id) || currentWindows.find(i => i.actor?.id === previousToken.actor.id));
+                if (window) CloseSheet(previousToken.actor.data.token.actorLink, window)
             }
                 break;
             case "2": for (let window of currentWindows) if (window.actor && window.actor.id !== currentToken.actor.id) CloseSheet(window.actor.data.token.actorLink, window)
