@@ -76,7 +76,8 @@ Hooks.on("renderActorSheet", (app, html, data) => {
 
     })
 })
-
+let delay = 5;
+if (typeof ForgeVTT !== 'undefined') delay = 15
 
 Hooks.on("updateCombat", async (combat, changed, options, userId) => {
 
@@ -116,7 +117,7 @@ Hooks.on("updateCombat", async (combat, changed, options, userId) => {
         let currentWindows = Object.values(ui.windows)
 
         if (combatFocusPostion !== "0") {
-            await sleep(5);
+            await sleep(delay);
             await currentToken.control();
             canvas.animatePan({ x: currentToken.center.x, y: currentToken.center.y, duration: 250 });
             let currentSheet = currentWindows.filter(i => i.token?.id === currentToken.id);
@@ -137,6 +138,7 @@ Hooks.on("updateCombat", async (combat, changed, options, userId) => {
                         break;
                 }
             else sheet = currentSheet[0];
+            await sleep(delay)
             if (sheet) {
                 let rightPos = window.innerWidth - sheet.position.width - 310;
 
