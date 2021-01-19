@@ -13,7 +13,7 @@ Hooks.on('init', () => {
         config: true,
     });
     game.settings.register("Next-Up", "combatFocusType", {
-        name: 'Combatant Focus Type',
+        name: 'Which Actor Sheet Types To Open',
         hint: 'Which actor types should be opened',
         scope: 'world',
         type: String,
@@ -26,7 +26,7 @@ Hooks.on('init', () => {
         config: true,
     });
     game.settings.register("Next-Up", "closewhich", {
-        name: 'Which sheets to close',
+        name: 'Which Combatant Sheets To Close',
         scope: 'world',
         type: String,
         choices: {
@@ -38,7 +38,7 @@ Hooks.on('init', () => {
         config: true,
     });
     game.settings.register("Next-Up", "closetype", {
-        name: 'Which actor type should be closed',
+        name: 'Which Actor Sheet Types To Close',
         scope: 'world',
         type: String,
         choices: {
