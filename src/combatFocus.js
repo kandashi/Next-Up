@@ -1,12 +1,5 @@
 Hooks.on('init', () => {
-    game.settings.register("Next-Up", "combatPan", {
-        name: 'Pan To Combatant',
-        hint: 'Auto focuses to the current combatant ',
-        scope: 'world',
-        type: Boolean,
-        default: true,
-        config: true,
-    });
+   
     game.settings.register("Next-Up", "combatFocusPostion", {
         name: 'Sheet Position',
         hint: 'Postion Of The Opened Character Sheet',
@@ -57,9 +50,17 @@ Hooks.on('init', () => {
         default: "0",
         config: true,
     });
+    game.settings.register("Next-Up", "playerPanEnable", {
+        name: 'Enable Panning For Player Clients',
+        hint: "Enables player clients to pan to tokens they have line of sight too. Requires clients to enable on their side",
+        scope: 'world', 
+        type: Boolean,
+        default: false,
+        config: true,
+    });
     game.settings.register("Next-Up", "playerPan", {
-        name: 'Pan Players to Combatant',
-        scope: 'world', // could be client scope too
+        name: 'Pan To Next Combatant',
+        scope: 'client', 
         type: Boolean,
         default: false,
         config: true,
@@ -107,11 +108,11 @@ Hooks.on("updateCombat", async (combat, changed, options, userId) => {
     if (game.combats.get(combat.id).data.combatants.length == 0) return;
 
     const combatFocusPostion = game.settings.get('Next-Up', 'combatFocusPostion');
-    const combatFocusPan = game.settings.get('Next-Up', 'combatPan');
+    const playerPanEnable = game.settings.get('Next-Up', 'playerPanEnable');
+    const playerPan = game.settings.get('Next-Up', 'playerPan');
     const closeWhich = game.settings.get('Next-Up', 'closewhich');
     const closeType = game.settings.get('Next-Up', 'closetype');
     const combatFocusType = game.settings.get('Next-Up', 'combatFocusType');
-    const playerPan = game.settings.get('Next-Up', 'playerPan');
     let currentWindows = Object.values(ui.windows);
 
     let nextTurn = combat.turns[changed.turn];
@@ -140,7 +141,6 @@ Hooks.on("updateCombat", async (combat, changed, options, userId) => {
     if (firstGm && game.user === firstGm) {
 
         await currentToken.control();
-        if (combatFocusPan) canvas.animatePan({ x: currentToken.center.x, y: currentToken.center.y, duration: 250 });
 
         if (combatFocusPostion !== "0") {
             let currentSheet = currentWindows.filter(i => i.token?.id === currentToken.id);
@@ -186,7 +186,7 @@ Hooks.on("updateCombat", async (combat, changed, options, userId) => {
         }
     }
 
-    if (!game.user.isGM && playerPan && combatFocusPan && currentToken.isVisible) {
+    if (playerPanEnable &&  playerPan && (currentToken.isVisible || game.user === firstGm)) {
         canvas.animatePan({ x: currentToken.center.x, y: currentToken.center.y, duration: 250 });
     }
 
