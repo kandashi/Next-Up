@@ -52,7 +52,7 @@ Hooks.on('init', () => {
     });
     game.settings.register("Next-Up", "playerPanEnable", {
         name: 'Enable Panning For Player Clients',
-        hint: "Enables player clients to pan to tokens they have line of sight too. Requires clients to enable on their side",
+        hint: "Enables player clients to pan to tokens they have line of sight to. Requires clients to enable on their side",
         scope: 'world', 
         type: Boolean,
         default: false,
@@ -67,6 +67,13 @@ Hooks.on('init', () => {
     });
     game.settings.register("Next-Up", "removePin", {
         name: 'Remove Pin Icon From Character Sheets',
+        scope: 'world',
+        type: Boolean,
+        default: false,
+        config: true,
+    });
+    game.settings.register("Next-Up", "controlCombatant", {
+        name: 'Disable Automatically Controlling Next Combatant',
         scope: 'world',
         type: Boolean,
         default: false,
@@ -113,6 +120,7 @@ Hooks.on("updateCombat", async (combat, changed, options, userId) => {
     const closeWhich = game.settings.get('Next-Up', 'closewhich');
     const closeType = game.settings.get('Next-Up', 'closetype');
     const combatFocusType = game.settings.get('Next-Up', 'combatFocusType');
+    const controlCombatant = game.settings.get('Next-Up', 'controlCombatant');
     let currentWindows = Object.values(ui.windows);
 
     let nextTurn = combat.turns[changed.turn];
@@ -140,7 +148,7 @@ Hooks.on("updateCombat", async (combat, changed, options, userId) => {
     const firstGm = game.users.find((u) => u.isGM && u.active);
     if (firstGm && game.user === firstGm) {
 
-        await currentToken.control();
+        if (!controlCombatant) await currentToken.control();
 
         if (combatFocusPostion !== "0") {
             let currentSheet = currentWindows.filter(i => i.token?.id === currentToken.id);
@@ -186,7 +194,7 @@ Hooks.on("updateCombat", async (combat, changed, options, userId) => {
         }
     }
 
-    if (playerPanEnable &&  playerPan && (currentToken.isVisible || game.user === firstGm)) {
+    if ((playerPanEnable && playerPan && currentToken.isVisible) || (playerPan && game.user === firstGm)) {
         canvas.animatePan({ x: currentToken.center.x, y: currentToken.center.y, duration: 250 });
     }
 
