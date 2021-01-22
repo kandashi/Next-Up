@@ -74,28 +74,27 @@ Hooks.on('init', () => {
     });
 })
 
-Hooks.on("renderActorSheet", (app, html, data) => {
+const pinButton = `
+<button id="nextup-pin" class="nextup-button" title="Pin Actor Sheet" style="height:30px;width:30px">
+    <i id="nextup-pin-icon" style="color: white" class="fas fa-thumbtack"></i>
+</button>`;
+
+function _restyleButton(title, isPinned) {
+    const color = isPinned ? 'white' : 'darkred';
+    title.find("#nextup-pin #nextup-pin-icon").css('color', color);
+}
+
+Hooks.on("renderActorSheet", (app, html, _data) => {
     if (game.settings.get('Next-Up', 'removePin')) return;
 
-    let title = html.find('.window-title');
-    let buttons = `
-<button id="nextup-pin" class="nextup-button" title="Pin Actor Sheet" style="height:30px;width:30px">
-        <i id="nextup-pin-icon" style="color: white" class="fas fa-thumbtack"></i>
-        </button>`;
-    title.prepend(buttons);
+    const title = html.find('.window-title');
 
-    if (app.pinned === true) title.find("#nextup-pin #nextup-pin-icon").css('color', 'darkred');
+    title.prepend(pinButton);
+    _restyleButton(html, app.pinned)
 
-    title.find("#nextup-pin").click(async (ev) => {
-        if (app.pinned === true) {
-            app.pinned = false
-            title.find("#nextup-pin #nextup-pin-icon").css('color', 'white');
-        }
-        else {
-            app.pinned = true
-            title.find("#nextup-pin #nextup-pin-icon").css('color', 'darkred');
-        }
-
+    title.find("#nextup-pin").click(async (_event) => {
+        app.pinned = !app.pinned
+        _restyleButton(title, app.pinned)
     })
 });
 
