@@ -191,9 +191,9 @@ Hooks.on("updateCombat", async (combat, changed, options, userId) => {
     }
 
     async function CloseSheet(link, sheet) {
-        let sheetPinned = sheet.pinned === true ? true : false
-        if (link && (closeType === "1" || closeType === "2") && !sheetPinned) sheet.close()
-        if (!link && (closeType === "0" || closeType === "2") && !sheetPinned) sheet.close()
+        if (sheet.pinned) return;
+        if (link && (closeType === "1" || closeType === "2")) sheet.close()
+        if (!link && (closeType === "0" || closeType === "2")) sheet.close()
     }
 
     async function sleep(millis) {
