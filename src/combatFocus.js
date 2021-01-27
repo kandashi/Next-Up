@@ -80,7 +80,7 @@ const pinButton = `
 </button>`;
 
 function _restyleButton(title, isPinned) {
-    const color = isPinned ? 'white' : 'darkred';
+    const color = isPinned ? 'darkred':'white' ;
     title.find("#nextup-pin #nextup-pin-icon").css('color', color);
 }
 
