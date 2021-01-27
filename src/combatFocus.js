@@ -1,5 +1,5 @@
 Hooks.on('init', () => {
-   
+
     game.settings.register("Next-Up", "combatFocusPostion", {
         name: 'Sheet Position',
         hint: 'Postion Of The Opened Character Sheet',
@@ -53,14 +53,14 @@ Hooks.on('init', () => {
     game.settings.register("Next-Up", "playerPanEnable", {
         name: 'Enable Panning For Player Clients',
         hint: "Enables player clients to pan to tokens they have line of sight too. Requires clients to enable on their side",
-        scope: 'world', 
+        scope: 'world',
         type: Boolean,
         default: false,
         config: true,
     });
     game.settings.register("Next-Up", "playerPan", {
         name: 'Pan To Next Combatant',
-        scope: 'client', 
+        scope: 'client',
         type: Boolean,
         default: false,
         config: true,
@@ -80,7 +80,7 @@ const pinButton = `
 </button>`;
 
 function _restyleButton(title, isPinned) {
-    const color = isPinned ? 'darkred':'white' ;
+    const color = isPinned ? 'darkred' : 'white';
     title.find("#nextup-pin #nextup-pin-icon").css('color', color);
 }
 
@@ -133,9 +133,6 @@ Hooks.on("updateCombat", async (combat, changed, options, userId) => {
         return;
     }
 
-
-
-    await sleep(delay);
     const firstGm = game.users.find((u) => u.isGM && u.active);
     if (firstGm && game.user === firstGm) {
 
@@ -160,18 +157,16 @@ Hooks.on("updateCombat", async (combat, changed, options, userId) => {
                         break;
                 }
             else sheet = currentSheet[0];
-            await sleep(delay)
-            if (sheet) {
+            let HookID = Hooks.once("renderActorSheet", (sheet) => {
                 let rightPos = window.innerWidth - sheet.position.width - 310;
-
-                await sleep(10);
                 let sheetPinned = sheet.pinned === true ? true : false;
                 switch (combatFocusPostion) {
                     case "1": if (!sheetPinned) sheet.setPosition({ left: 107, top: 46 });
                         break;
                     case "2": if (!sheetPinned) sheet.setPosition({ left: rightPos, top: 46 });
                 }
-            }
+            });
+            Hooks.off("renderActorSheet", HookID)
         }
 
         switch (closeWhich) {
@@ -185,7 +180,7 @@ Hooks.on("updateCombat", async (combat, changed, options, userId) => {
         }
     }
 
-    if (playerPanEnable &&  playerPan && (currentToken.isVisible || game.user === firstGm)) {
+    if (playerPanEnable && playerPan && (currentToken.isVisible || game.user === firstGm)) {
         canvas.animatePan({ x: currentToken.center.x, y: currentToken.center.y, duration: 250 });
     }
 
@@ -194,9 +189,4 @@ Hooks.on("updateCombat", async (combat, changed, options, userId) => {
         if (link && (closeType === "1" || closeType === "2")) sheet.close()
         if (!link && (closeType === "0" || closeType === "2")) sheet.close()
     }
-
-    async function sleep(millis) {
-        return new Promise(r => setTimeout(r, millis));
-    }
-
 });
