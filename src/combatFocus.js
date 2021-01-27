@@ -166,7 +166,7 @@ Hooks.on("updateCombat", async (combat, changed, options, userId) => {
                     case "2": if (!sheetPinned) sheet.setPosition({ left: rightPos, top: 46 });
                 }
             });
-            Hooks.off("renderActorSheet", HookID)
+
         }
 
         switch (closeWhich) {
