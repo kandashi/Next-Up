@@ -10,7 +10,8 @@
       }
     ],
     "scripts": [
-        "/src/combatFocus.js"
+        "/src/combatFocus.js",
+        "greensock/dist/gsap.min.js"
     ],
     "url": "https://github.com/kandashi/Next-Up",
     "manifest": "https://raw.githubusercontent.com/kandashi/Next-Up/main/module.json",
