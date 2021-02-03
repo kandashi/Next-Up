@@ -1,5 +1,7 @@
-Hooks.on('init', () => {
 
+import ImagePicker from "./ImagePicker.js";
+
+Hooks.on('init', () => {
     game.settings.register("Next-Up", "combatFocusPostion", {
         name: 'Sheet Position',
         hint: 'Postion Of The Opened Character Sheet',
@@ -51,8 +53,8 @@ Hooks.on('init', () => {
         config: true,
     });
     game.settings.register("Next-Up", "playerPanEnable", {
-        name: 'Enable Panning For Player Clients',
-        hint: "Enables player clients to pan to tokens they have line of sight too. Requires clients to enable on their side",
+        name: 'Enable Panning For Individual Clients',
+        hint: "Enables clients to pan to tokens they have line of sight too. Requires clients to enable on their side (this includes the GM client)",
         scope: 'world',
         type: Boolean,
         default: false,
@@ -72,18 +74,82 @@ Hooks.on('init', () => {
         default: false,
         config: true,
     });
+    game.settings.register("Next-Up", "markerEnable", {
+        name: 'Add turn marker',
+        scope: 'world',
+        type: Boolean,
+        default: true,
+        config: true,
+    });
+
+    game.settings.register("Next-Up", "markerType", {
+        name: 'Turn marker icon',
+        scope: 'world',
+        type: ImagePicker.Image,
+        default: "[data] modules/Next-Up/Markers/DoubleSquare.png",
+        config: true,
+        onChange: () => { NextUpChangeImage() }
+    });
+    game.settings.register("Next-Up", "animateSpeed", {
+        name: 'Animation speed for turn marker',
+        hint: "Seconds per full rotation, 0 is no rotation",
+        scope: 'world',
+        type: Number,
+        default: 3,
+        config: true,
+    });
+    game.settings.register("Next-Up", "markerRatio", {
+        name: 'Turn Marker Ratio',
+        hint: "Ratio compared to token height/width",
+        scope: 'world',
+        type: Number,
+        default: 1,
+        config: true,
+    });
+
+})
+let NUtweeningToken;
+let NUmarkedTokenId;
+let NUMarkerImage;
+
+
+/**
+ * Remove  tween and remove the sprite
+ */
+Hooks.on("canvasInit", async (newCanvas) => {
+    NextUpChangeImage();
+    if (NUtweeningToken) {
+        NUtweeningToken.kill()
+    }
+    Hooks.once("canvasPan", () => {
+        let combat = game.combats.find(i => i.data.scene === canvas.scene._id)
+        let currentToken = canvas.tokens.get(combat.current.tokenId)
+        if (currentToken) {
+            AddTurnMaker(currentToken, canvas.grid.size);
+        }
+    })
 })
 
-const pinButton = `
-<button id="nextup-pin" class="nextup-button" title="Pin Actor Sheet" style="height:30px;width:30px">
-    <i id="nextup-pin-icon" style="color: white" class="fas fa-thumbtack"></i>
-</button>`;
 
-function _restyleButton(title, isPinned) {
-    const color = isPinned ? 'darkred' : 'white';
-    title.find("#nextup-pin #nextup-pin-icon").css('color', color);
-}
+Hooks.on("deleteCombat", () => {
+    if (NUtweeningToken) {
+        NUtweeningToken.kill()
+        let markedToken = canvas.tokens.get(NUmarkedTokenId)
+        markedToken.children.filter(j => j._texture?.baseTexture?.source.outerHTML.includes(`${NUMarkerImage}`)).destroy()
+    }
+})
 
+/**
+ * Remove tween 
+ */
+Hooks.on("preDeleteToken", (scene, token) => {
+    let removeToken = canvas.tokens.get(token._id)
+    TweenMax.killTweensOf(removeToken?.children[0]);
+})
+
+/**
+ * Add pin to actor sheet bar and restyle
+ */
 Hooks.on("renderActorSheet", (app, html, _data) => {
     if (game.settings.get('Next-Up', 'removePin')) return;
 
@@ -98,9 +164,10 @@ Hooks.on("renderActorSheet", (app, html, _data) => {
     })
 });
 
-let delay = 5;
-if (typeof ForgeVTT !== 'undefined') delay = 15;
 
+/**
+ * Main logic to close/open actor sheets and add Turn Marker sprite with animation
+ */
 Hooks.on("updateCombat", async (combat, changed, options, userId) => {
 
     if (!("turn" in changed) && changed.round !== 1) return;
@@ -128,7 +195,10 @@ Hooks.on("updateCombat", async (combat, changed, options, userId) => {
 
     let currentToken = canvas.tokens.get(nextTokenId);
     let previousToken = canvas.tokens.get(previousTurn.tokenId)
-
+    NUtweeningToken.kill()
+    let markedToken = canvas.tokens.get(NUmarkedTokenId)
+    let sprite = markedToken.children.filter(i => i._texture?.baseTexture?.source.outerHTML.includes(`${NUMarkerImage}`))
+    if (sprite) sprite.forEach(i => i.destroy())
     if (!currentToken.actor) {
         return;
     }
@@ -157,7 +227,8 @@ Hooks.on("updateCombat", async (combat, changed, options, userId) => {
                         break;
                 }
             else sheet = currentSheet[0];
-            let HookID = Hooks.once("renderActorSheet", (sheet) => {
+
+            Hooks.once("renderActorSheet", (sheet) => {
                 let rightPos = window.innerWidth - sheet.position.width - 310;
                 let sheetPinned = sheet.pinned === true ? true : false;
                 switch (combatFocusPostion) {
@@ -166,7 +237,6 @@ Hooks.on("updateCombat", async (combat, changed, options, userId) => {
                     case "2": if (!sheetPinned) sheet.setPosition({ left: rightPos, top: 46 });
                 }
             });
-
         }
 
         switch (closeWhich) {
@@ -183,6 +253,9 @@ Hooks.on("updateCombat", async (combat, changed, options, userId) => {
     if (playerPanEnable && playerPan && (currentToken.isVisible || game.user === firstGm)) {
         canvas.animatePan({ x: currentToken.center.x, y: currentToken.center.y, duration: 250 });
     }
+    if (game.settings.get("Next-Up", "markerEnable")) {
+        AddTurnMaker(currentToken, canvas.grid.size)
+    }
 
     async function CloseSheet(link, sheet) {
         if (sheet.pinned) return;
@@ -190,3 +263,66 @@ Hooks.on("updateCombat", async (combat, changed, options, userId) => {
         if (!link && (closeType === "0" || closeType === "2")) sheet.close()
     }
 });
+
+/**
+ * Remove all sprites and tweens of old image style
+ * Update marker image to new choice
+ * Add new sprite to current combatant
+ */
+async function NextUpChangeImage() {
+    canvas.tokens.placeables.forEach(i => {
+        TweenMax.killTweensOf(i.children[0]);
+        let marker = i.children.filter(j => j._texture?.baseTexture?.source.outerHTML.includes(`${NUMarkerImage}`))
+        if (marker) marker.forEach(i => i.destroy())
+    })
+    NUMarkerImage = await game.settings.get("Next-Up", "markerType")
+    NUMarkerImage = NUMarkerImage.substring(7)
+    let combat = game.combats.find(i => i.data.scene === canvas.scene._id)
+    let currentToken = canvas.tokens.get(combat.current.tokenId)
+    if (currentToken) {
+
+        AddTurnMaker(currentToken, canvas.grid.size);
+    }
+}
+
+/**
+ * Hmtl for pin button
+ */
+const pinButton = `
+<button id="nextup-pin" class="nextup-button" title="Pin Actor Sheet" style="height:30px;width:30px">
+    <i id="nextup-pin-icon" style="color: white" class="fas fa-thumbtack"></i>
+</button>`;
+
+/**
+ * Change Pin color 
+ * @param {title bar} title 
+ * @param {variable} isPinned 
+ */
+function _restyleButton(title, isPinned) {
+    const color = isPinned ? 'darkred' : 'white';
+    title.find("#nextup-pin #nextup-pin-icon").css('color', color);
+}
+/**
+ * Add turn marker to passed token, animate if necessary
+ * @param {Token} token 
+ * @param {Number} grid grid size
+ */
+async function AddTurnMaker(token, grid) {
+    const ratio = game.settings.get("Next-Up", "markerRatio")
+    const markerTexture = await loadTexture(NUMarkerImage)
+    const textureSize = await grid * token.data.height
+    markerTexture.orig = { height: textureSize * ratio, width: textureSize * ratio, x: textureSize / 2, y: textureSize / 2 }
+    token.addChild(new PIXI.Sprite(markerTexture))
+    token.sortableChildren = true
+    token.children[token.children.length - 1].zIndex = -1
+    NUmarkedTokenId = token.data._id;
+    let { width, height } = markerTexture;
+    let animationSpeed = game.settings.get("Next-Up", "animateSpeed")
+
+    token.children.find(i => i._texture?.baseTexture?.source.outerHTML.includes(`${NUMarkerImage}`)).transform.pivot = await new PIXI.Point(width * .5, height * .5)
+    if (animationSpeed !== 0) {
+        NUtweeningToken = TweenMax.to(token.children.find(i => i._texture?.baseTexture?.source.outerHTML.includes(`${NUMarkerImage}`)), animationSpeed, { angle: 360, repeat: -1, ease: Linear.easeNone });
+        token.children.find(i => i._texture?.baseTexture?.source.outerHTML.includes(`${NUMarkerImage}`)).transform.position = { x: textureSize / 2, y: textureSize / 2 };
+    }
+}
+
