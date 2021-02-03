@@ -197,8 +197,10 @@ Hooks.on("updateCombat", async (combat, changed, options, userId) => {
     let previousToken = canvas.tokens.get(previousTurn.tokenId)
     NUtweeningToken.kill()
     let markedToken = canvas.tokens.get(NUmarkedTokenId)
-    let sprite = markedToken.children.filter(i => i._texture?.baseTexture?.source.outerHTML.includes(`${NUMarkerImage}`))
-    if (sprite) sprite.forEach(i => i.destroy())
+    if (markedToken) {
+        let sprite = markedToken.children.filter(i => i._texture?.baseTexture?.source.outerHTML.includes(`${NUMarkerImage}`))
+        if (sprite) sprite.forEach(i => i.destroy())
+    }
     if (!currentToken.actor) {
         return;
     }
