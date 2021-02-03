@@ -37,3 +37,25 @@ This module can:
 
 ### Remove Pin Icon From Character Sheets
 - Setting to remove the ability to pin character sheets. 
+
+## Add Turn Marker
+- This allows the turn marker to be added to the current token active in combat
+
+## Animation Speed
+- Any value over 0 will add a rotation to the turn marker. This value is how many seconds per rotation (value of 1 = 1 second per full rotation)
+
+## Turn Marker Ratio
+- How large compared to the token size will the marker appear 
+
+## Licensing
+
+The included rune style images are created by Rin (rin#0002 on Discord)
+
+The DoubleSquare and Cats images are created by Wassily  (Wassily #8035 on Discord) 
+https://discord.gg/A59GAZwB9M
+https://www.patreon.com/JB2A
+
+The BlueCirlce image was created by Jinker (Jinker #8073 on Discord)
+https://www.patreon.com/jinker
+
+The DoubleSquareMuted and PointedCircleMuted images are made by hobolyra (hobolyra #0967 on Discord)

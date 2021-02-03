@@ -2,7 +2,7 @@
     "name": "Next-Up",
     "title": "Next Up",
     "description": "Auto focus to current combatant for GM clients",
-    "version": "0.0.36",
+    "version": "0.0.4",
     "authors": [
       {
         "name": "Kandashi",
@@ -10,7 +10,8 @@
       }
     ],
     "scripts": [
-        "/src/combatFocus.js"
+        "/src/combatFocus.js",
+        "greensock/dist/gsap.min.js"
     ],
     "url": "https://github.com/kandashi/Next-Up",
     "manifest": "https://raw.githubusercontent.com/kandashi/Next-Up/main/module.json",
