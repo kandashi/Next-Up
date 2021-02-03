@@ -58,4 +58,7 @@ https://www.patreon.com/JB2A
 The BlueCirlce image was created by Jinker (Jinker #8073 on Discord)
 https://www.patreon.com/jinker
 
+The Red, Yellow and Green circle images are created by Brimcon (Brimcon #1485 on Discord)
+
 The DoubleSquareMuted and PointedCircleMuted images are made by hobolyra (hobolyra #0967 on Discord)
+

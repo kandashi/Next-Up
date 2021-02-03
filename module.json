@@ -1,8 +1,8 @@
 {
     "name": "Next-Up",
     "title": "Next Up",
-    "description": "Auto focus to current combatant for GM clients",
-    "version": "0.0.42",
+    "description": "Several Combat Enhancements, pan to combatant, open sheets and turn markers.",
+    "version": "0.0.43",
     "authors": [
       {
         "name": "Kandashi",

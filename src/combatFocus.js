@@ -122,10 +122,12 @@ Hooks.on("canvasInit", async (newCanvas) => {
         NUtweeningToken.kill()
     }
     Hooks.once("canvasPan", () => {
-        let combat = game.combats.find(i => i.data.scene === canvas.scene._id)
-        let currentToken = canvas.tokens.get(combat.current.tokenId)
-        if (currentToken) {
-            AddTurnMaker(currentToken, canvas.grid.size);
+        let combat = game.combats?.find(i => i.data.scene === canvas.scene._id)
+        if (combat) {
+            let currentToken = canvas.tokens.get(combat.current.tokenId)
+            if (currentToken) {
+                AddTurnMaker(currentToken, canvas.grid.size);
+            }
         }
     })
 })
@@ -135,7 +137,7 @@ Hooks.on("deleteCombat", () => {
     if (NUtweeningToken) {
         NUtweeningToken.kill()
         let markedToken = canvas.tokens.get(NUmarkedTokenId)
-        markedToken.children.filter(j => j._texture?.baseTexture?.source.outerHTML.includes(`${NUMarkerImage}`)).destroy()
+        markedToken.children.find(j => j._texture?.baseTexture?.source.outerHTML.includes(`${NUMarkerImage}`)).destroy()
     }
 })
 
@@ -195,7 +197,9 @@ Hooks.on("updateCombat", async (combat, changed, options, userId) => {
 
     let currentToken = canvas.tokens.get(nextTokenId);
     let previousToken = canvas.tokens.get(previousTurn.tokenId)
-    NUtweeningToken.kill()
+    if (NUtweeningToken) {
+        NUtweeningToken.kill()
+    }
     let markedToken = canvas.tokens.get(NUmarkedTokenId)
     if (markedToken) {
         let sprite = markedToken.children.filter(i => i._texture?.baseTexture?.source.outerHTML.includes(`${NUMarkerImage}`))
@@ -273,17 +277,18 @@ Hooks.on("updateCombat", async (combat, changed, options, userId) => {
  */
 async function NextUpChangeImage() {
     canvas.tokens.placeables.forEach(i => {
-        TweenMax.killTweensOf(i.children[0]);
+        NUtweeningToken.kill()
         let marker = i.children.filter(j => j._texture?.baseTexture?.source.outerHTML.includes(`${NUMarkerImage}`))
         if (marker) marker.forEach(i => i.destroy())
     })
     NUMarkerImage = await game.settings.get("Next-Up", "markerType")
     NUMarkerImage = NUMarkerImage.substring(7)
-    let combat = game.combats.find(i => i.data.scene === canvas.scene._id)
-    let currentToken = canvas.tokens.get(combat.current.tokenId)
-    if (currentToken) {
-
-        AddTurnMaker(currentToken, canvas.grid.size);
+    let combat = game.combats?.find(i => i.data.scene === canvas.scene._id)
+    if (combat) {
+        let currentToken = canvas.tokens.get(combat.current.tokenId)
+        if (currentToken) {
+            AddTurnMaker(currentToken, canvas.grid.size);
+        }
     }
 }
 
@@ -311,20 +316,21 @@ function _restyleButton(title, isPinned) {
  */
 async function AddTurnMaker(token, grid) {
     const ratio = game.settings.get("Next-Up", "markerRatio")
-    const markerTexture = await loadTexture(NUMarkerImage)
+    let markerTexture = await loadTexture(NUMarkerImage)
     const textureSize = await grid * token.data.height
-    markerTexture.orig = { height: textureSize * ratio, width: textureSize * ratio, x: textureSize / 2, y: textureSize / 2 }
-    token.addChild(new PIXI.Sprite(markerTexture))
+    const animationSpeed = game.settings.get("Next-Up", "animateSpeed")
+    markerTexture.orig = { height: textureSize * ratio, width: textureSize * ratio, x: (textureSize * ratio) / 2, y: (textureSize * ratio) / 2 }
+    let sprite = new PIXI.Sprite(markerTexture)
+    if (animationSpeed > 0) sprite.anchor.set(0.5)
+    let markerToken = token.addChild(sprite)
     token.sortableChildren = true
-    token.children[token.children.length - 1].zIndex = -1
+    markerToken.zIndex = -1
+
     NUmarkedTokenId = token.data._id;
-    let { width, height } = markerTexture;
-    let animationSpeed = game.settings.get("Next-Up", "animateSpeed")
 
-    token.children.find(i => i._texture?.baseTexture?.source.outerHTML.includes(`${NUMarkerImage}`)).transform.pivot = await new PIXI.Point(width * .5, height * .5)
     if (animationSpeed !== 0) {
-        NUtweeningToken = TweenMax.to(token.children.find(i => i._texture?.baseTexture?.source.outerHTML.includes(`${NUMarkerImage}`)), animationSpeed, { angle: 360, repeat: -1, ease: Linear.easeNone });
-        token.children.find(i => i._texture?.baseTexture?.source.outerHTML.includes(`${NUMarkerImage}`)).transform.position = { x: textureSize / 2, y: textureSize / 2 };
+        NUtweeningToken = TweenMax.to(markerToken, animationSpeed, { angle: 360, repeat: -1, ease: Linear.easeNone });
+        markerToken.transform.position = { x: textureSize / 2, y: textureSize / 2 };
     }
+    else markerToken.transform.position.set((textureSize - (textureSize * ratio)) / 2)
 }
-
