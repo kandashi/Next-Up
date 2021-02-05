@@ -59,6 +59,9 @@ Hooks.on('init', () => {
         type: Boolean,
         default: false,
         config: true,
+        onChange: () => {
+            if(!game.modules.get("popout").active) ui.notifications.error("The popout feature of Next-Up depends on the Popout module please enable this module before continuing")
+        }
     });
     game.settings.register("Next-Up", "playerPanEnable", {
         name: 'Enable Panning For Individual Clients',
