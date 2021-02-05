@@ -88,7 +88,7 @@ Hooks.on('init', () => {
         type: ImagePicker.Image,
         default: "[data] modules/Next-Up/Markers/DoubleSquare.png",
         config: true,
-        onChange: () => { NextUpChangeImage() }
+        onChange: () => { window.location.reload() }
     });
     game.settings.register("Next-Up", "animateSpeed", {
         name: 'Animation speed for turn marker',
@@ -104,6 +104,14 @@ Hooks.on('init', () => {
         scope: 'world',
         type: Number,
         default: 1,
+        config: true,
+    });
+    game.settings.register("Next-Up", "tokenShadow", {
+        name: 'Token Shadow',
+        hint: "Adds a shadow of the token to indicate its start position",
+        scope: 'world',
+        type: Boolean,
+        default: false,
         config: true,
     });
 
@@ -139,6 +147,8 @@ Hooks.on("deleteCombat", () => {
         let markedToken = canvas.tokens.get(NUmarkedTokenId)
         markedToken.children.find(j => j._texture?.baseTexture?.source.outerHTML.includes(`${NUMarkerImage}`)).destroy()
     }
+    let shadows = canvas.background.children.filter(i => i.isShadow)
+    shadows.forEach(s => s.destroy())
 })
 
 /**
@@ -255,7 +265,8 @@ Hooks.on("updateCombat", async (combat, changed, options, userId) => {
             case "2": for (let window of currentWindows) if (window.actor && window.actor.id !== currentToken.actor.id) CloseSheet(window.actor.data.token.actorLink, window)
         }
     }
-
+    let shadows = canvas.background.children.filter(i => i.isShadow)
+    shadows.forEach(s => s.destroy())
     if (playerPanEnable && playerPan && (currentToken.isVisible || game.user === firstGm)) {
         canvas.animatePan({ x: currentToken.center.x, y: currentToken.center.y, duration: 250 });
     }
@@ -268,6 +279,7 @@ Hooks.on("updateCombat", async (combat, changed, options, userId) => {
         if (link && (closeType === "1" || closeType === "2")) sheet.close()
         if (!link && (closeType === "0" || closeType === "2")) sheet.close()
     }
+
 });
 
 /**
@@ -333,4 +345,24 @@ async function AddTurnMaker(token, grid) {
         markerToken.transform.position = { x: textureSize / 2, y: textureSize / 2 };
     }
     else markerToken.transform.position.set((textureSize - (textureSize * ratio)) / 2)
+
+    
+        DropStartMarker(token, grid)
+    
+
+}
+
+async function DropStartMarker(token, grid) {
+    if (!game.settings.get("Next-Up", "tokenShadow")) return;
+    if (token.data.hidden && !game.user.isGM) return;
+    let markerTexture = await loadTexture(token.data.img)
+    const textureSize = grid * token.data.height * token.data.scale
+    const offset = (textureSize - (grid * token.data.height)) / 2
+    markerTexture.orig = { height: textureSize, width: textureSize }
+    let sprite = new PIXI.Sprite(markerTexture)
+    let startMarker = canvas.background.addChild(sprite)
+    startMarker.transform.position.set(token.data.x - offset, token.data.y - offset)
+    startMarker.isShadow = true
+    startMarker.tint = 9410203
+    startMarker.alpha = 0.5
 }
