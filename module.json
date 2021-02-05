@@ -2,15 +2,11 @@
     "name": "Next-Up",
     "title": "Next Up",
     "description": "Several Combat Enhancements, pan to combatant, open sheets and turn markers.",
-    "version": "0.0.44",
-    "author" : "Kandashi",
-    "manifestPlusVersion": "1.0.0",
+    "version": "0.0.43",
     "authors": [
       {
         "name": "Kandashi",
-        "url": "https://github.com/kandashi",
-        "discord": "Kandashi (He/Him)#6698",
-        "patreon": "Kandashi"
+        "url": "https://github.com/kandashi"
       }
     ],
     "esmodules": [
@@ -18,13 +14,6 @@
   ],
   "scripts": [
     "greensock/dist/gsap.min.js"
-  ],
-  "media": [
-    {
-      "type": "video",
-      "url": "https://github.com/kandashi/Next-Up/blob/main/Images/Next%20Up%20full%20demo.webm",
-      "loop": true
-    }
   ],
     "url": "https://github.com/kandashi/Next-Up",
     "manifest": "https://raw.githubusercontent.com/kandashi/Next-Up/main/module.json",
