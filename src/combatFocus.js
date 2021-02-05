@@ -52,6 +52,17 @@ Hooks.on('init', () => {
         default: "0",
         config: true,
     });
+    game.settings.register("Next-Up", "popout", {
+        name: 'Popout Actor Sheets',
+        hint: "Pops out the actor sheet using the `Popout` module",
+        scope: 'world',
+        type: Boolean,
+        default: false,
+        config: true,
+        onChange: () => {
+            if(!game.modules.get("popout").active) ui.notifications.error("The popout feature of Next-Up depends on the Popout module please enable this module before continuing")
+        }
+    });
     game.settings.register("Next-Up", "playerPanEnable", {
         name: 'Enable Panning For Individual Clients',
         hint: "Enables clients to pan to tokens they have line of sight too. Requires clients to enable on their side (this includes the GM client)",
@@ -106,12 +117,33 @@ Hooks.on('init', () => {
         default: 1,
         config: true,
     });
-    game.settings.register("Next-Up", "tokenShadow", {
-        name: 'Token Shadow',
-        hint: "Adds a shadow of the token to indicate its start position",
+    game.settings.register("Next-Up", "startMarker", {
+        name: 'Start Turn Marker',
+        hint: "Adds an icon indicate a tokens start position",
         scope: 'world',
-        type: Boolean,
+        type: String,
+        choices: {
+            "0": "None",
+            "1": "Shadow",
+            "2": "Icon",
+        },
         default: false,
+        config: true,
+    });
+    game.settings.register("Next-Up", "startMarkerImage", {
+        name: 'Start Turn Marker Icon',
+        scope: 'world',
+        type: ImagePicker.Image,
+        default: "[data] modules/Next-Up/Markers/BlackCross.png",
+        config: true,
+        onChange: () => { window.location.reload() }
+    });
+    game.settings.register("Next-Up", "startMarkerRatio", {
+        name: 'Start Marker Ratio',
+        hint: "Ratio compared to token height/width for icon type marker",
+        scope: 'world',
+        type: Number,
+        default: 1,
         config: true,
     });
 
@@ -244,15 +276,20 @@ Hooks.on("updateCombat", async (combat, changed, options, userId) => {
                 }
             else sheet = currentSheet[0];
 
-            Hooks.once("renderActorSheet", (sheet) => {
+            Hooks.once("renderActorSheet", async (sheet) => {
                 let rightPos = window.innerWidth - sheet.position.width - 310;
                 let sheetPinned = sheet.pinned === true ? true : false;
                 switch (combatFocusPostion) {
-                    case "1": if (!sheetPinned) sheet.setPosition({ left: 107, top: 46 });
+                    case "1": if (!sheetPinned) await sheet.setPosition({ left: 107, top: 46 });
                         break;
-                    case "2": if (!sheetPinned) sheet.setPosition({ left: rightPos, top: 46 });
+                    case "2": if (!sheetPinned) await sheet.setPosition({ left: rightPos, top: 46 });
+                }
+                if (game.settings.get("Next-Up", "popout")) {
+                    await PopoutModule.singleton.onPopoutClicked("1", sheet)
                 }
             });
+
+
         }
 
         switch (closeWhich) {
@@ -346,23 +383,43 @@ async function AddTurnMaker(token, grid) {
     }
     else markerToken.transform.position.set((textureSize - (textureSize * ratio)) / 2)
 
-    
-        DropStartMarker(token, grid)
-    
+
+    DropStartMarker(token, grid)
+
 
 }
 
 async function DropStartMarker(token, grid) {
-    if (!game.settings.get("Next-Up", "tokenShadow")) return;
-    if (token.data.hidden && !game.user.isGM) return;
-    let markerTexture = await loadTexture(token.data.img)
-    const textureSize = grid * token.data.height * token.data.scale
-    const offset = (textureSize - (grid * token.data.height)) / 2
-    markerTexture.orig = { height: textureSize, width: textureSize }
-    let sprite = new PIXI.Sprite(markerTexture)
-    let startMarker = canvas.background.addChild(sprite)
-    startMarker.transform.position.set(token.data.x - offset, token.data.y - offset)
-    startMarker.isShadow = true
-    startMarker.tint = 9410203
-    startMarker.alpha = 0.5
+    switch (game.settings.get("Next-Up", "startMarker")) {
+        case "0":
+            break;
+        case "1": {
+            if (token.data.hidden && !game.user.isGM) return;
+            let markerTexture = await loadTexture(token.data.img)
+            const textureSize = grid * token.data.height * token.data.scale
+            const offset = (textureSize - (grid * token.data.height)) / 2
+            markerTexture.orig = { height: textureSize, width: textureSize }
+            let sprite = new PIXI.Sprite(markerTexture)
+            let startMarker = canvas.background.addChild(sprite)
+            startMarker.transform.position.set(token.data.x - offset, token.data.y - offset)
+            startMarker.isShadow = true
+            startMarker.tint = 9410203
+            startMarker.alpha = 0.7
+        }
+        break;
+        case "2": {
+            let ratio = game.settings.get("Next-Up", "startMarkerRatio")
+            let NUStartImage = await game.settings.get("Next-Up", "startMarkerImage")
+            NUStartImage = NUStartImage.substring(7)
+            let startMarkerTexture = await loadTexture(NUStartImage)
+            const textureSize = grid * token.data.height * ratio
+            const offset = (textureSize - (grid * token.data.height)) / 2
+            startMarkerTexture.orig = { height: textureSize, width: textureSize }
+            let sprite = new PIXI.Sprite(startMarkerTexture)
+            let startMarker = canvas.background.addChild(sprite)
+            startMarker.transform.position.set(token.data.x - offset, token.data.y - offset)
+            startMarker.isShadow = true
+            startMarker.alpha = 0.7
+        }
+    }
 }
