@@ -166,7 +166,7 @@ Hooks.on("canvasInit", async (newCanvas) => {
         if (combat) {
             let currentToken = canvas.tokens.get(combat.current.tokenId)
             if (currentToken) {
-                AddTurnMaker(currentToken, canvas.grid.size);
+                AddTurnMaker(currentToken, canvas.grid);
             }
         }
     })
@@ -308,7 +308,7 @@ Hooks.on("updateCombat", async (combat, changed, options, userId) => {
         canvas.animatePan({ x: currentToken.center.x, y: currentToken.center.y, duration: 250 });
     }
     if (game.settings.get("Next-Up", "markerEnable")) {
-        AddTurnMaker(currentToken, canvas.grid.size)
+        AddTurnMaker(currentToken, canvas.grid)
     }
 
     async function CloseSheet(link, sheet) {
@@ -336,7 +336,7 @@ async function NextUpChangeImage() {
     if (combat) {
         let currentToken = canvas.tokens.get(combat.current.tokenId)
         if (currentToken) {
-            AddTurnMaker(currentToken, canvas.grid.size);
+            AddTurnMaker(currentToken, canvas.grid);
         }
     }
 }
@@ -361,12 +361,12 @@ function _restyleButton(title, isPinned) {
 /**
  * Add turn marker to passed token, animate if necessary
  * @param {Token} token 
- * @param {Number} grid grid size
+ * @param {Number} grid canvas.grid 
  */
 async function AddTurnMaker(token, grid) {
     const ratio = game.settings.get("Next-Up", "markerRatio")
     let markerTexture = await loadTexture(NUMarkerImage)
-    const textureSize = await grid * token.data.height
+    const textureSize = await grid.size * token.data.height
     const animationSpeed = game.settings.get("Next-Up", "animateSpeed")
     markerTexture.orig = { height: textureSize * ratio, width: textureSize * ratio, x: (textureSize * ratio) / 2, y: (textureSize * ratio) / 2 }
     let sprite = new PIXI.Sprite(markerTexture)
@@ -379,7 +379,7 @@ async function AddTurnMaker(token, grid) {
 
     if (animationSpeed !== 0) {
         NUtweeningToken = TweenMax.to(markerToken, animationSpeed, { angle: 360, repeat: -1, ease: Linear.easeNone });
-        markerToken.transform.position = { x: textureSize / 2, y: textureSize / 2 };
+        markerToken.transform.position = { x: grid.w / 2, y: grid.h / 2 };
     }
     else markerToken.transform.position.set((textureSize - (textureSize * ratio)) / 2)
 
