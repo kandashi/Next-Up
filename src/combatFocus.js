@@ -60,7 +60,7 @@ Hooks.on('init', () => {
         default: false,
         config: true,
         onChange: () => {
-            if(!game.modules.get("popout").active) ui.notifications.error("The popout feature of Next-Up depends on the Popout module please enable this module before continuing")
+            if (!game.modules.get("popout").active) ui.notifications.error("The popout feature of Next-Up depends on the Popout module please enable this module before continuing")
         }
     });
     game.settings.register("Next-Up", "playerPanEnable", {
@@ -379,7 +379,7 @@ async function AddTurnMaker(token, grid) {
 
     if (animationSpeed !== 0) {
         NUtweeningToken = TweenMax.to(markerToken, animationSpeed, { angle: 360, repeat: -1, ease: Linear.easeNone });
-        markerToken.transform.position = { x: grid.w / 2, y: grid.h / 2 };
+        markerToken.transform.position = { x: grid.w * token.data.width / 2, y: grid.h * token.data.height / 2 };
     }
     else markerToken.transform.position.set((textureSize - (textureSize * ratio)) / 2)
 
@@ -396,8 +396,8 @@ async function DropStartMarker(token, grid) {
         case "1": {
             if (token.data.hidden && !game.user.isGM) return;
             let markerTexture = await loadTexture(token.data.img)
-            const textureSize = grid * token.data.height * token.data.scale
-            const offset = (textureSize - (grid * token.data.height)) / 2
+            const textureSize = grid.size * token.data.height * token.data.scale
+            const offset = (textureSize - (grid.size * token.data.height)) / 2
             markerTexture.orig = { height: textureSize, width: textureSize }
             let sprite = new PIXI.Sprite(markerTexture)
             let startMarker = canvas.background.addChild(sprite)
@@ -406,14 +406,14 @@ async function DropStartMarker(token, grid) {
             startMarker.tint = 9410203
             startMarker.alpha = 0.7
         }
-        break;
+            break;
         case "2": {
             let ratio = game.settings.get("Next-Up", "startMarkerRatio")
             let NUStartImage = await game.settings.get("Next-Up", "startMarkerImage")
             NUStartImage = NUStartImage.substring(7)
             let startMarkerTexture = await loadTexture(NUStartImage)
-            const textureSize = grid * token.data.height * ratio
-            const offset = (textureSize - (grid * token.data.height)) / 2
+            const textureSize = grid.size * token.data.height * ratio
+            const offset = (textureSize - (grid.size * token.data.height)) / 2
             startMarkerTexture.orig = { height: textureSize, width: textureSize }
             let sprite = new PIXI.Sprite(startMarkerTexture)
             let startMarker = canvas.background.addChild(sprite)
