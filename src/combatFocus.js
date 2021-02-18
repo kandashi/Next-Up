@@ -213,7 +213,7 @@ Hooks.on("renderActorSheet", (app, html, _data) => {
  * Main logic to close/open actor sheets and add Turn Marker sprite with animation
  */
 Hooks.on("updateCombat", async (combat, changed, options, userId) => {
-
+    if(!combat.started) return;
     if (!("turn" in changed) && changed.round !== 1) return;
     if (game.combats.get(combat.id).data.combatants.length == 0) return;
 
