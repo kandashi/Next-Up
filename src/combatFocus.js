@@ -146,12 +146,13 @@ Hooks.on('init', () => {
         default: 1,
         config: true,
     });
+    gameVersion = parseFloat(game.data.version)
 
 })
 let NUtweeningToken;
 let NUmarkedTokenId;
 let NUMarkerImage;
-
+let gameVersion;
 
 /**
  * Remove  tween and remove the sprite
@@ -164,7 +165,13 @@ Hooks.on("canvasInit", async (newCanvas) => {
     Hooks.once("canvasPan", () => {
         let combat = game.combats?.find(i => i.data.scene === canvas.scene._id)
         if (combat) {
-            let currentToken = canvas.tokens.get(combat.current.tokenId)
+            let currentToken;
+            if (gameVersion < 0.8) {
+                currentToken = canvas.tokens.get(combat.current.tokenId)
+            }
+            else if (gameVersion >= 0.8) {
+                currentToken = canvas.tokens.get(combat.combatant.token._id)
+            }
             if (currentToken) {
                 AddTurnMaker(currentToken, canvas.grid);
             }
@@ -213,7 +220,7 @@ Hooks.on("renderActorSheet", (app, html, _data) => {
  * Main logic to close/open actor sheets and add Turn Marker sprite with animation
  */
 Hooks.on("updateCombat", async (combat, changed, options, userId) => {
-    if(!combat.started) return;
+    if (!combat.started) return;
     if (!("turn" in changed) && changed.round !== 1) return;
     if (game.combats.get(combat.id).data.combatants.length == 0) return;
 
@@ -230,11 +237,19 @@ Hooks.on("updateCombat", async (combat, changed, options, userId) => {
     const previousTurn = combat.turns[changed.turn - 1 > -1 ? changed.turn - 1 : combat.turns.length - 1]
 
     let nextTokenId = null;
-    if (getProperty(nextTurn, "tokenId")) {
-        nextTokenId = nextTurn.tokenId;
-    }
-    else {
-        nextTokenId = getProperty(nextTurn, token._id);
+    if (gameVersion >= 0.8) {
+        if (getProperty(nextTurn, "data.tokenId")) {
+            nextTokenId = nextTurn.data.tokenId;
+        }
+        else {
+            nextTokenId = getProperty(nextTurn, "_token._id");
+        }
+    } else if (gameVersion < 0.8) {
+        if (getProperty(nextTurn, "tokenId")) {
+            nextTokenId = nextTurn.tokenId;
+        } else {
+            nextTokenId = getProperty(nextTurn, token._id);
+        }
     }
 
     let currentToken = canvas.tokens.get(nextTokenId);
