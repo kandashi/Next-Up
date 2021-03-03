@@ -213,7 +213,7 @@ Hooks.on("renderActorSheet", (app, html, _data) => {
  * Main logic to close/open actor sheets and add Turn Marker sprite with animation
  */
 Hooks.on("updateCombat", async (combat, changed, options, userId) => {
-    if(!combat.started) return;
+    if (!combat.started) return;
     if (!("turn" in changed) && changed.round !== 1) return;
     if (game.combats.get(combat.id).data.combatants.length == 0) return;
 
@@ -264,12 +264,12 @@ Hooks.on("updateCombat", async (combat, changed, options, userId) => {
                     case "0": sheet = await currentToken.actor.sheet.render(true);
                         break;
                     case "1": {
-                        if (currentToken.data.actorLink === false) sheet = await currentToken.actor.sheet.render(true);
+                        if (currentToken.data.actorLink === false) sheet = await currentToken.actor.sheet.render(true, {token: currentToken.actor.token});
                         else sheet = false;
                     }
                         break;
                     case "2": {
-                        if (currentToken.actor.hasPlayerOwner === false) sheet = await currentToken.actor.sheet.render(true);
+                        if (currentToken.actor.hasPlayerOwner === false) sheet = await currentToken.actor.sheet.render(true, {token: currentToken.actor.token});
                         else sheet = false;
                     }
                         break;
@@ -299,7 +299,15 @@ Hooks.on("updateCombat", async (combat, changed, options, userId) => {
                 if (window) CloseSheet(previousToken.actor.data.token.actorLink, window)
             }
                 break;
-            case "2": for (let window of currentWindows) if (window.actor && window.actor.id !== currentToken.actor.id) CloseSheet(window.actor.data.token.actorLink, window)
+            case "2": for (let window of currentWindows) {
+            switch(currentToken.actor.data.token.actorLink){
+                case true: if (window.actor && window.actor.id !== currentToken.actor.id) CloseSheet(window.actor.data.token.actorLink, window)
+                break;
+                case false:
+                if (window.actor && window.token.id !== currentToken.actor.token.id) CloseSheet(window.actor.data.token.actorLink, window)
+                break;
+            }
+            }
         }
     }
     let shadows = canvas.background.children.filter(i => i.isShadow)
