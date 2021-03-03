@@ -179,7 +179,7 @@ Hooks.on("deleteCombat", () => {
         let markedToken = canvas.tokens.get(NUmarkedTokenId)
         markedToken.children.find(j => j._texture?.baseTexture?.source.outerHTML.includes(`${NUMarkerImage}`)).destroy()
     }
-    let shadows = canvas.background.children.filter(i => i.isShadow)
+    let shadows = canvas.tiles.children.filter(i => i.isShadow)
     shadows.forEach(s => s.destroy())
 })
 
@@ -310,7 +310,7 @@ Hooks.on("updateCombat", async (combat, changed, options, userId) => {
             }
         }
     }
-    let shadows = canvas.background.children.filter(i => i.isShadow)
+    let shadows = canvas.tiles.children.filter(i => i.isShadow)
     shadows.forEach(s => s.destroy())
     if (playerPanEnable && playerPan && (currentToken.isVisible || game.user === firstGm)) {
         canvas.animatePan({ x: currentToken.center.x, y: currentToken.center.y, duration: 250 });
@@ -408,7 +408,7 @@ async function DropStartMarker(token, grid) {
             const offset = (textureSize - (grid.size * token.data.height)) / 2
             markerTexture.orig = { height: textureSize, width: textureSize }
             let sprite = new PIXI.Sprite(markerTexture)
-            let startMarker = canvas.background.addChild(sprite)
+            let startMarker = canvas.tiles.addChild(sprite)
             startMarker.transform.position.set(token.data.x - offset, token.data.y - offset)
             startMarker.isShadow = true
             startMarker.tint = 9410203
@@ -424,7 +424,7 @@ async function DropStartMarker(token, grid) {
             const offset = (textureSize - (grid.size * token.data.height)) / 2
             startMarkerTexture.orig = { height: textureSize, width: textureSize }
             let sprite = new PIXI.Sprite(startMarkerTexture)
-            let startMarker = canvas.background.addChild(sprite)
+            let startMarker = canvas.tiles.addChild(sprite)
             startMarker.transform.position.set(token.data.x - offset, token.data.y - offset)
             startMarker.isShadow = true
             startMarker.alpha = 0.7
