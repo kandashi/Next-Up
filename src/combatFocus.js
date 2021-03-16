@@ -4,7 +4,7 @@ import ImagePicker from "./ImagePicker.js";
 Hooks.on('init', () => {
     game.settings.register("Next-Up", "combatFocusPostion", {
         name: 'Sheet Position',
-        hint: 'Postion Of The Opened Character Sheet',
+        hint: 'Enable opening of character sheets and choose its position',
         scope: 'world',
         type: String,
         choices: {
@@ -16,8 +16,8 @@ Hooks.on('init', () => {
         config: true,
     });
     game.settings.register("Next-Up", "combatFocusType", {
-        name: 'Which Actor Sheet Types To Open',
-        hint: 'Which actor types should be opened',
+        name: 'Sheets to Open',
+        hint: 'Which actor types should be automatically opened',
         scope: 'world',
         type: String,
         choices: {
@@ -28,20 +28,9 @@ Hooks.on('init', () => {
         default: "0",
         config: true,
     });
-    game.settings.register("Next-Up", "closewhich", {
-        name: 'Which Combatant Sheets To Close',
-        scope: 'world',
-        type: String,
-        choices: {
-            "0": "None",
-            "1": "Previous Combatant",
-            "2": "All",
-        },
-        default: "0",
-        config: true,
-    });
     game.settings.register("Next-Up", "closetype", {
-        name: 'Which Actor Sheet Types To Close',
+        name: 'Sheets to Close',
+        hint: 'Which actor types should be automatically closed',
         scope: 'world',
         type: String,
         choices: {
@@ -52,6 +41,20 @@ Hooks.on('init', () => {
         default: "0",
         config: true,
     });
+    game.settings.register("Next-Up", "closewhich", {
+        name: 'Combatant Sheets to Close',
+        hint: 'Which combatants sheets should be automatically closed',
+        scope: 'world',
+        type: String,
+        choices: {
+            "0": "None",
+            "1": "Previous Combatant",
+            "2": "All",
+        },
+        default: "0",
+        config: true,
+    });
+
     game.settings.register("Next-Up", "popout", {
         name: 'Popout Actor Sheets',
         hint: "Pops out the actor sheet using the `Popout` module",
@@ -117,8 +120,16 @@ Hooks.on('init', () => {
         default: 1,
         config: true,
     });
+    game.settings.register("Next-Up", "iconLevel", {
+        name: 'Render Icon Above Token',
+        hint: "Render the turn marker icon above the token image",
+        scope: 'world',
+        type: Boolean,
+        default: false,
+        config: true,
+    });
     game.settings.register("Next-Up", "startMarker", {
-        name: 'Start Turn Marker',
+        name: 'Start-Turn Marker',
         hint: "Adds an icon indicate a tokens start position",
         scope: 'world',
         type: String,
@@ -131,7 +142,7 @@ Hooks.on('init', () => {
         config: true,
     });
     game.settings.register("Next-Up", "startMarkerImage", {
-        name: 'Start Turn Marker Icon',
+        name: 'Start-Turn Marker Icon',
         scope: 'world',
         type: ImagePicker.Image,
         default: "[data] modules/Next-Up/Markers/BlackCross.png",
@@ -264,12 +275,12 @@ Hooks.on("updateCombat", async (combat, changed, options, userId) => {
                     case "0": sheet = await currentToken.actor.sheet.render(true);
                         break;
                     case "1": {
-                        if (currentToken.data.actorLink === false) sheet = await currentToken.actor.sheet.render(true, {token: currentToken.actor.token});
+                        if (currentToken.data.actorLink === false) sheet = await currentToken.actor.sheet.render(true, { token: currentToken.actor.token });
                         else sheet = false;
                     }
                         break;
                     case "2": {
-                        if (currentToken.actor.hasPlayerOwner === false) sheet = await currentToken.actor.sheet.render(true, {token: currentToken.actor.token});
+                        if (currentToken.actor.hasPlayerOwner === false) sheet = await currentToken.actor.sheet.render(true, { token: currentToken.actor.token });
                         else sheet = false;
                     }
                         break;
@@ -300,13 +311,13 @@ Hooks.on("updateCombat", async (combat, changed, options, userId) => {
             }
                 break;
             case "2": for (let window of currentWindows) {
-            switch(currentToken.actor.data.token.actorLink){
-                case true: if (window.actor && window.actor.id !== currentToken.actor.id) CloseSheet(window.actor.data.token.actorLink, window)
-                break;
-                case false:
-                if (window.actor && window.token.id !== currentToken.actor.token.id) CloseSheet(window.actor.data.token.actorLink, window)
-                break;
-            }
+                switch (currentToken.actor.data.token.actorLink) {
+                    case true: if (window.actor && window.actor.id !== currentToken.actor.id) CloseSheet(window.actor.data.token.actorLink, window)
+                        break;
+                    case false:
+                        if (window.actor && window.token.id !== currentToken.actor.token.id) CloseSheet(window.actor.data.token.actorLink, window)
+                        break;
+                }
             }
         }
     }
@@ -381,8 +392,9 @@ async function AddTurnMaker(token, grid) {
     if (animationSpeed > 0) sprite.anchor.set(0.5)
     let markerToken = token.addChild(sprite)
     token.sortableChildren = true
-    markerToken.zIndex = -1
-
+    if (game.settings.get("Next-Up", "iconLevel") === false) {
+        markerToken.zIndex = -1
+    }
     NUmarkedTokenId = token.data._id;
 
     if (animationSpeed !== 0) {
@@ -391,10 +403,7 @@ async function AddTurnMaker(token, grid) {
     }
     else markerToken.transform.position.set((textureSize - (textureSize * ratio)) / 2)
 
-
     DropStartMarker(token, grid)
-
-
 }
 
 async function DropStartMarker(token, grid) {
@@ -406,8 +415,9 @@ async function DropStartMarker(token, grid) {
             let markerTexture = await loadTexture(token.data.img)
             const textureSize = grid.size * token.data.height * token.data.scale
             const offset = (textureSize - (grid.size * token.data.height)) / 2
-            markerTexture.orig = { height: textureSize, width: textureSize }
             let sprite = new PIXI.Sprite(markerTexture)
+            sprite.height = textureSize
+            sprite.width = textureSize
             let startMarker = canvas.tiles.addChild(sprite)
             startMarker.transform.position.set(token.data.x - offset, token.data.y - offset)
             startMarker.isShadow = true
@@ -422,8 +432,9 @@ async function DropStartMarker(token, grid) {
             let startMarkerTexture = await loadTexture(NUStartImage)
             const textureSize = grid.size * token.data.height * ratio
             const offset = (textureSize - (grid.size * token.data.height)) / 2
-            startMarkerTexture.orig = { height: textureSize, width: textureSize }
             let sprite = new PIXI.Sprite(startMarkerTexture)
+            sprite.height = textureSize
+            sprite.width = textureSize
             let startMarker = canvas.tiles.addChild(sprite)
             startMarker.transform.position.set(token.data.x - offset, token.data.y - offset)
             startMarker.isShadow = true
