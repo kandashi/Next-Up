@@ -188,7 +188,7 @@ Hooks.on("deleteCombat", () => {
     if (NUtweeningToken) {
         NUtweeningToken.kill()
         let markedToken = canvas.tokens.get(NUmarkedTokenId)
-        markedToken.children.find(j => j._texture?.baseTexture?.source.outerHTML.includes(`${NUMarkerImage}`)).destroy()
+        markedToken.children.find(j => j._texture?.isNUMarker).destroy()
     }
     let shadows = canvas.tiles.children.filter(i => i.isShadow)
     shadows.forEach(s => s.destroy())
@@ -255,7 +255,7 @@ Hooks.on("updateCombat", async (combat, changed, options, userId) => {
     }
     let markedToken = canvas.tokens.get(NUmarkedTokenId)
     if (markedToken) {
-        let sprite = markedToken.children.filter(i => i._texture?.baseTexture?.source.outerHTML.includes(`${NUMarkerImage}`))
+        let sprite = markedToken.children.filter(i => i._texture?.isNUMarker)
         if (sprite) sprite.forEach(i => i.destroy())
     }
     if (!currentToken.actor) {
@@ -346,7 +346,7 @@ Hooks.on("updateCombat", async (combat, changed, options, userId) => {
 async function NextUpChangeImage() {
     canvas.tokens.placeables.forEach(i => {
         NUtweeningToken.kill()
-        let marker = i.children.filter(j => j._texture?.baseTexture?.source.outerHTML.includes(`${NUMarkerImage}`))
+        let marker = i.children.filter(j => j._texture?.isNUMarker)
         if (marker) marker.forEach(i => i.destroy())
     })
     NUMarkerImage = await game.settings.get("Next-Up", "markerType")
@@ -361,7 +361,7 @@ async function NextUpChangeImage() {
 }
 
 /**
- * Hmtl for pin button
+ * Html for pin button
  */
 const pinButton = `
 <button id="nextup-pin" class="nextup-button" title="Pin Actor Sheet" style="height:30px;width:30px">
@@ -383,11 +383,14 @@ function _restyleButton(title, isPinned) {
  * @param {Number} grid canvas.grid 
  */
 async function AddTurnMaker(token, grid) {
-    const ratio = game.settings.get("Next-Up", "markerRatio")
-    let markerTexture = await loadTexture(NUMarkerImage)
+    const markerRatio = token.actor.getFlag("Next-Up", "markerRatio") || game.settings.get("Next-Up", "markerRatio")
+    const markerImage = token.actor.getFlag("Next-Up", "markerImage") || NUMarkerImage
+    let markerTexture = await loadTexture(markerImage)
     const textureSize = await grid.size * token.data.height
     const animationSpeed = game.settings.get("Next-Up", "animateSpeed")
-    markerTexture.orig = { height: textureSize * ratio, width: textureSize * ratio, x: (textureSize * ratio) / 2, y: (textureSize * ratio) / 2 }
+    markerTexture.orig = { height: textureSize * markerRatio, width: textureSize * markerRatio, x: (textureSize * markerRatio) / 2, y: (textureSize * markerRatio) / 2 }
+    // Add non-existent property
+    markerTexture.isNUMarker = true
     let sprite = new PIXI.Sprite(markerTexture)
     if (animationSpeed > 0) sprite.anchor.set(0.5)
     let markerToken = token.addChild(sprite)
@@ -401,7 +404,7 @@ async function AddTurnMaker(token, grid) {
         NUtweeningToken = TweenMax.to(markerToken, animationSpeed, { angle: 360, repeat: -1, ease: Linear.easeNone });
         markerToken.transform.position = { x: grid.w * token.data.width / 2, y: grid.h * token.data.height / 2 };
     }
-    else markerToken.transform.position.set((textureSize - (textureSize * ratio)) / 2)
+    else markerToken.transform.position.set((textureSize - (textureSize * markerRatio)) / 2)
 
     DropStartMarker(token, grid)
 }
@@ -426,10 +429,10 @@ async function DropStartMarker(token, grid) {
         }
             break;
         case "2": {
-            let ratio = game.settings.get("Next-Up", "startMarkerRatio")
+            let ratio = token.actor.getFlag("Next-Up", "startMarkerRatio") || game.settings.get("Next-Up", "startMarkerRatio")
             let NUStartImage = await game.settings.get("Next-Up", "startMarkerImage")
-            NUStartImage = NUStartImage.substring(7)
-            let startMarkerTexture = await loadTexture(NUStartImage)
+            let startImage = token.actor.getFlag("Next-Up", "startMarkerImage") || NUStartImage.substring(7)
+            let startMarkerTexture = await loadTexture(startImage)
             const textureSize = grid.size * token.data.height * ratio
             const offset = (textureSize - (grid.size * token.data.height)) / 2
             let sprite = new PIXI.Sprite(startMarkerTexture)
