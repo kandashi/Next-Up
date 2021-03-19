@@ -47,6 +47,12 @@ This module can:
 ## Turn Marker Ratio
 - How large compared to the token size will the marker appear 
 
+
+### Tokens Specific Images
+- You can now set token specific markers by setting a flag on the token
+- token.setflag("Next-Up", "markerImage"/"markerRatio", "path to image"/ratio)
+
+
 ## Licensing
 
 The included rune style images are created by Rin (rin#0002 on Discord)
