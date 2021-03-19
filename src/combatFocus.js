@@ -315,7 +315,7 @@ Hooks.on("updateCombat", async (combat, changed, options, userId) => {
                     case true: if (window.actor && window.actor.id !== currentToken.actor.id) CloseSheet(window.actor.data.token.actorLink, window)
                         break;
                     case false:
-                        if (window.actor && window.token.id !== currentToken.actor.token.id) CloseSheet(window.actor.data.token.actorLink, window)
+                        if (window.actor) CloseSheet(window.actor.data.token.actorLink, window)
                         break;
                 }
             }
