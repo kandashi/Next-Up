@@ -338,6 +338,16 @@ Hooks.on("updateCombat", async (combat, changed, options, userId) => {
 
 });
 
+Hooks.on("updateToken", (_scene, token, update) => {
+    if ("height" in update || "width" in update) {
+        if (NUtweeningToken) {
+            NUtweeningToken.kill()
+            let newToken = canvas.tokens.get(token._id)
+            AddTurnMaker(newToken, canvas.grid);
+        }
+    }
+})
+
 /**
  * Remove all sprites and tweens of old image style
  * Update marker image to new choice
@@ -429,6 +439,7 @@ async function DropStartMarker(token, grid) {
         }
             break;
         case "2": {
+            if (token.data.hidden && !game.user.isGM) return;
             let ratio = token.actor.getFlag("Next-Up", "startMarkerRatio") || game.settings.get("Next-Up", "startMarkerRatio")
             let NUStartImage = await game.settings.get("Next-Up", "startMarkerImage")
             let startImage = token.actor.getFlag("Next-Up", "startMarkerImage") || NUStartImage.substring(7)
