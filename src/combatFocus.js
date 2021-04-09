@@ -338,6 +338,16 @@ Hooks.on("updateCombat", async (combat, changed, options, userId) => {
 
 });
 
+Hooks.on("updateToken", (_scene, token, update) => {
+    if ("height" in update || "width" in update) {
+        if (NUtweeningToken) {
+            NUtweeningToken.kill()
+            let newToken = canvas.tokens.get(token._id)
+            AddTurnMaker(newToken, canvas.grid);
+        }
+    }
+})
+
 /**
  * Remove all sprites and tweens of old image style
  * Update marker image to new choice
