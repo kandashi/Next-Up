@@ -439,6 +439,7 @@ async function DropStartMarker(token, grid) {
         }
             break;
         case "2": {
+            if (token.data.hidden && !game.user.isGM) return;
             let ratio = token.actor.getFlag("Next-Up", "startMarkerRatio") || game.settings.get("Next-Up", "startMarkerRatio")
             let NUStartImage = await game.settings.get("Next-Up", "startMarkerImage")
             let startImage = token.actor.getFlag("Next-Up", "startMarkerImage") || NUStartImage.substring(7)
