@@ -165,7 +165,7 @@ let NUMarkerImage;
 
 
 /**
- * Remove  tween and remove the sprite
+ * Remove  tween and remove the sprite  
  */
 Hooks.on("canvasInit", async (newCanvas) => {
     NextUpChangeImage();
@@ -189,6 +189,7 @@ Hooks.on("deleteCombat", () => {
         NUtweeningToken.kill()
         let markedToken = canvas.tokens.get(NUmarkedTokenId)
         markedToken.children.find(j => j._texture?.isNUMarker).destroy()
+        NUtweeningToken = {}
     }
     let shadows = canvas.tiles.children.filter(i => i.isShadow)
     shadows.forEach(s => s.destroy())
@@ -206,7 +207,7 @@ Hooks.on("preDeleteToken", (scene, token) => {
  * Add pin to actor sheet bar and restyle
  */
 Hooks.on("renderActorSheet", (app, html, _data) => {
-    if (game.settings.get('Next-Up', 'removePin')) return;
+    if (game.settings.get('Next-Up', 'removePin') || game.settings.get("Next-Up", "closewhich") === "0") return;
 
     const title = html.find('.window-title');
 
