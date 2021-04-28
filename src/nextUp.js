@@ -1,5 +1,5 @@
 import ImagePicker from "./ImagePicker.js";
-import {libWrapper} from './shim.js';
+import { libWrapper } from './shim.js';
 
 Hooks.on('init', () => {
     game.settings.register("Next-Up", "combatFocusPostion", {
@@ -170,7 +170,7 @@ Hooks.on('init', () => {
 
 function newTearDown(wrapped, ...args) {
 
-    for( let child of this.placeables){
+    for (let child of this.placeables) {
         TweenMax.killTweensOf(child.children)
     }
     return wrapped(...args)
@@ -187,7 +187,7 @@ Hooks.once('ready', () => {
         NextUP.clearShadows()
     })
 
-    Hooks.on("updateCombat", NextUP.handleCombatUpdate)
+    Hooks.on("preUpdateCombat", NextUP.handleCombatUpdate)
 
     Hooks.on("updateToken", (_scene, token, update) => {
         if ("height" in update || "width" in update) {
@@ -203,7 +203,7 @@ Hooks.once('ready', () => {
 
 Hooks.on("canvasInit", async (newCanvas) => {
     NextUpChangeImage();
-    
+
     Hooks.once("canvasPan", () => {
         let combat = game.combats?.find(i => i.data.scene === canvas.scene._id)
         if (combat) {
@@ -218,46 +218,52 @@ Hooks.on("canvasInit", async (newCanvas) => {
 
 let NUMarkerImage;
 
-     async function NextUpChangeImage() {
-        canvas.tokens.placeables.forEach(i => {
-            NUtweeningToken.kill()
-            let marker = i.children.filter(j => j._texture?.isNUMarker)
-            if (marker) marker.forEach(i => i.destroy())
+async function NextUpChangeImage() {
+    canvas.tokens.placeables.forEach(i => {
+        let markers = i.children.filter(i => i.NUMaker)
+        if (!markers) return;
+        markers.forEach(m => {
+            TweenMax.killTweensOf(m)
+            m.destroy()
         })
-        NUMarkerImage = await game.settings.get("Next-Up", "markerType")
-        NUMarkerImage = NUMarkerImage.substring(7)
-        let combat = game.combats?.find(i => i.data.scene === canvas.scene._id)
-        if (combat) {
-            let currentToken = canvas.tokens.get(combat.current.tokenId)
-            if (currentToken) {
-                AddTurnMaker(currentToken, canvas.grid);
-            }
+    })
+    if(!game.settings.get("Next-Up", "markerEnable")) return;
+    NUMarkerImage = await game.settings.get("Next-Up", "markerType")
+    if(NUMarkerImage === "") return;
+    NUMarkerImage = NUMarkerImage.substring(7)
+    let combat = game.combats?.find(i => i.data.scene === canvas.scene._id)
+    if (combat) {
+        let currentToken = canvas.tokens.get(combat.current.tokenId)
+        if (currentToken) {
+            AddTurnMaker(currentToken, canvas.grid);
         }
     }
+}
 
 class NextUP {
 
     static async handleCombatUpdate(combat, changed) {
-        const playerPanEnable = game.settings.get('Next-Up', 'playerPanEnable');
-        const playerPan = game.settings.get('Next-Up', 'playerPan');
         if (!combat.started) return;
         if (!("turn" in changed) && changed.round !== 1) return;
         if (game.combats.get(combat.id).data.combatants.length == 0) return;
-        const nextTurn = combat.turns[changed.turn] || combat.turns[0]
-        const previousTurn = combat.turns[changed.turn - 1 > -1 ? changed.turn - 1 : combat.turns.length - 1]
-        const nextTokenId = getProperty(nextTurn, "tokenId") || getProperty(nextTurn, token._id);
-        let currentToken = canvas.tokens.placeables.find(i => i.id === nextTokenId);
-        let previousToken = canvas.tokens.get(previousTurn.tokenId)
-        NextUP.clearMarker(previousToken.id)
-        NextUP.AddTurnMaker(currentToken, canvas.grid)
-        NextUP.clearShadows()
-        NextUP.cycleSheets(currentToken, previousToken)
-        if (playerPanEnable && playerPan && (currentToken.isVisible || game.user === firstGm)) {
-            canvas.animatePan({ x: currentToken.center.x, y: currentToken.center.y, duration: 250 });
+        const playerPanEnable = game.settings.get('Next-Up', 'playerPanEnable');
+        const playerPan = game.settings.get('Next-Up', 'playerPan');
+        const nextTurnIndex = changed.turn
+        const previousTurnIndex = combat.current.turn
+        const nextToken = canvas.tokens.get(combat.turns[nextTurnIndex].tokenId);
+        const previousToken = canvas.tokens.get(combat.turns[previousTurnIndex].tokenId)
+        if (game.settings.get("Next-Up", "markerEnable")) {
+            NextUP.clearMarker(previousToken.id)
+            NextUP.AddTurnMaker(nextToken, canvas.grid)
+        }
+        if (game.settings.get("Next-Up", "startMarker")) {
+            NextUP.clearShadows()
+        }
+        NextUP.cycleSheets(nextToken, previousToken)
+        if (playerPanEnable && playerPan && (nextToken.isVisible || game.user === firstGm)) {
+            canvas.animatePan({ x: nextToken.center.x, y: nextToken.center.y, duration: 250 });
         }
     }
-
-    
 
     static async cycleSheets(currentToken, previousToken) {
         const combatFocusPostion = game.settings.get('Next-Up', 'combatFocusPostion');
@@ -315,7 +321,7 @@ class NextUP {
                     break;
                 case "2": for (let window of currentWindows) {
                     switch (currentToken.actor.data.token.actorLink) {
-                        case true: if (window.actor && window.actor.id !== currentToken.actor.id) CloseSheet(window.actor.data.token.actorLink, window)
+                        case true: if (window.actor && window.actor.id !== currentToken.actor.id) NextUP.CloseSheet(window.actor.data.token.actorLink, window)
                             break;
                         case false:
                             if (window.actor) this.CloseSheet(window.actor.data.token.actorLink, window)
@@ -337,7 +343,7 @@ class NextUP {
         const removeToken = canvas.tokens.get(tokenId)
         const markers = removeToken.children.filter(i => i.NUMaker)
         if (!markers) return;
-        markers.forEach(m => { 
+        markers.forEach(m => {
             TweenMax.killTweensOf(m)
             m.destroy()
         })
@@ -375,7 +381,7 @@ class NextUP {
     static async AddTurnMaker(token, grid) {
         if (!game.settings.get("Next-Up", "markerEnable")) return;
         let prevMarker = token.children.filter(i => i.NUMaker)
-        if(prevMarker.length > 0){
+        if (prevMarker.length > 0) {
             return;
         }
 
