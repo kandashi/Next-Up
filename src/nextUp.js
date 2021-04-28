@@ -243,7 +243,7 @@ async function NextUpChangeImage() {
 class NextUP {
 
     static async handleCombatUpdate(combat, changed) {
-        if (!combat.started) return;
+        //if (combat.round === 0 || changed?.round === 0) return;
         if (!("turn" in changed) && changed.round !== 1) return;
         if (game.combats.get(combat.id).data.combatants.length == 0) return;
         const playerPanEnable = game.settings.get('Next-Up', 'playerPanEnable');
@@ -341,6 +341,7 @@ class NextUP {
 
     static clearMarker(tokenId) {
         const removeToken = canvas.tokens.get(tokenId)
+        if(!removeToken) return;
         const markers = removeToken.children.filter(i => i.NUMaker)
         if (!markers) return;
         markers.forEach(m => {
