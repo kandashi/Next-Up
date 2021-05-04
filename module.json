@@ -1,21 +1,22 @@
 {
-    "name": "Next-Up",
-    "title": "Next Up",
-    "description": "Several Combat Enhancements, pan to combatant, open sheets and turn markers.",
-    "version": "0.0.59",
-    "author" : "Kandashi",
-    "manifestPlusVersion": "1.0.0",
-    "authors": [
-      {
-        "name": "Kandashi",
-        "url": "https://github.com/kandashi",
-        "discord": "Kandashi (He/Him)#6698",
-        "patreon": "Kandashi"
-      }
-    ],
-    "esmodules": [
-      "/src/nextUp.js"        
+  "name": "Next-Up",
+  "title": "Next Up",
+  "description": "Several Combat Enhancements, pan to combatant, open sheets and turn markers.",
+  "version": "0.0.57",
+  "author": "Kandashi",
+  "manifestPlusVersion": "1.0.0",
+  "authors": [
+    {
+      "name": "Kandashi",
+      "url": "https://github.com/kandashi",
+      "discord": "Kandashi (He/Him)#6698",
+      "patreon": "Kandashi"
+    }
   ],
+  "esmodules": [
+    "/src/nextUp.js"
+  ],
+  "socket": true,
   "scripts": [
     "greensock/dist/gsap.min.js"
   ],
@@ -26,11 +27,11 @@
       "loop": true
     }
   ],
-    "url": "https://github.com/kandashi/Next-Up",
-    "manifest": "https://raw.githubusercontent.com/kandashi/Next-Up/main/module.json",
-    "download": "https://github.com/kandashi/Next-Up/archive/main.zip",
-    "minimumCoreVersion": "0.7.5",
-    "compatibleCoreVersion": "0.7.9",
-    "allowBugReporter": true,
-    "bugs": "https://github.com/kandashi/Next-Up/issues"
+  "url": "https://github.com/kandashi/Next-Up",
+  "manifest": "https://raw.githubusercontent.com/kandashi/Next-Up/main/module.json",
+  "download": "https://github.com/kandashi/Next-Up/archive/main.zip",
+  "minimumCoreVersion": "0.7.5",
+  "compatibleCoreVersion": "0.7.9",
+  "allowBugReporter": true,
+  "bugs": "https://github.com/kandashi/Next-Up/issues"
 }

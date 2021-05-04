@@ -178,7 +178,12 @@ function newTearDown(wrapped, ...args) {
 
 
 Hooks.once('ready', () => {
+
+    game.socket.on('module.Next-Up', (socketData) => {
+        NextUP.handleCombatUpdate(socketData.combat, socketData.changed)
+    })
     Hooks.on("preDeleteToken", (_scene, token) => {
+        if(token.actorId === "") return;
         NextUP.clearMarker(token._id)
     })
 
@@ -187,7 +192,7 @@ Hooks.once('ready', () => {
         NextUP.clearShadows()
     })
 
-    Hooks.on("preUpdateCombat", NextUP.handleCombatUpdate)
+    Hooks.on("preUpdateCombat", NextUP.socketLaunch)
 
     Hooks.on("updateToken", (_scene, token, update) => {
         if ("height" in update || "width" in update) {
@@ -241,6 +246,19 @@ async function NextUpChangeImage() {
 }
 
 class NextUP {
+
+    static socketLaunch(combat, changed){
+        let combatData = {
+            id : combat._id,
+            turns : duplicate(combat.turns),
+            current : {
+                turn: combat.current.turn
+            }
+        }
+        let socketData = {combat: combatData, changed: changed}
+        game.socket.emit('module.Next-Up', socketData)
+        NextUP.handleCombatUpdate(combat, changed)
+    }
 
     static async handleCombatUpdate(combat, changed) {
         //if (combat.round === 0 || changed?.round === 0) return;
