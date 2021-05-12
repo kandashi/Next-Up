@@ -114,10 +114,10 @@ Hooks.on('init', () => {
     });
     game.settings.register("Next-Up", "markerRatio", {
         name: 'Turn Marker Ratio',
-        hint: "Ratio compared to token height/width",
+        hint: "How many squares/hexes does the marker extend past the tokens border",
         scope: 'world',
         type: Number,
-        default: 1,
+        default: 0,
         config: true,
     });
     game.settings.register("Next-Up", "iconLevel", {
@@ -182,8 +182,12 @@ Hooks.once('ready', () => {
     game.socket.on('module.Next-Up', (socketData) => {
         NextUP.handleCombatUpdate(socketData.combat, socketData.changed)
     })
+
+    Hooks.on("createCombatant", (_combat, data) => {
+        NextUP.createTurnMarker(data.tokenId)
+    })
     Hooks.on("preDeleteToken", (_scene, token) => {
-        if(token.actorId === "") return;
+        if (token.actorId === "") return;
         NextUP.clearMarker(token._id)
     })
 
@@ -200,23 +204,23 @@ Hooks.once('ready', () => {
             const marker = removeToken.children.find(i => i.NUMaker)
             if (marker) {
                 NextUP.clearMarker(token._id)
-                NextUP.AddTurnMaker(token, canvas.grid)
+                NextUP.createTurnMarker(token, canvas.grid)
             }
         }
     })
 })
 
-Hooks.on("canvasInit", async (newCanvas) => {
+Hooks.on("canvasInit", () => {
     NextUpChangeImage();
 
-    Hooks.once("canvasPan", () => {
+    Hooks.once("canvasPan", async () => {
         let combat = game.combats?.find(i => i.data.scene === canvas.scene._id)
         if (combat) {
-            let currentToken = canvas.tokens.get(combat.current.tokenId)
-            if (currentToken) {
-                NextUP.AddTurnMaker(currentToken, canvas.grid);
-            }
+            for (let t of combat.combatants) { await NextUP.createTurnMarker(t.tokenId) }
+            let token = canvas.tokens.get(combat.current?.tokenId)
+            NextUP.AddTurnMaker(token, canvas.grid)
         }
+
     })
 })
 
@@ -232,9 +236,9 @@ async function NextUpChangeImage() {
             m.destroy()
         })
     })
-    if(!game.settings.get("Next-Up", "markerEnable")) return;
+    if (!game.settings.get("Next-Up", "markerEnable")) return;
     NUMarkerImage = await game.settings.get("Next-Up", "markerType")
-    if(NUMarkerImage === "") return;
+    if (NUMarkerImage === "") return;
     NUMarkerImage = NUMarkerImage.substring(7)
     let combat = game.combats?.find(i => i.data.scene === canvas.scene._id)
     if (combat) {
@@ -247,15 +251,15 @@ async function NextUpChangeImage() {
 
 class NextUP {
 
-    static socketLaunch(combat, changed){
+    static socketLaunch(combat, changed) {
         let combatData = {
-            id : combat._id,
-            turns : duplicate(combat.turns),
-            current : {
+            id: combat._id,
+            turns: duplicate(combat.turns),
+            current: {
                 turn: combat.current.turn
             }
         }
-        let socketData = {combat: combatData, changed: changed}
+        let socketData = { combat: combatData, changed: changed }
         game.socket.emit('module.Next-Up', socketData)
         NextUP.handleCombatUpdate(combat, changed)
     }
@@ -299,15 +303,15 @@ class NextUP {
                 let sheet;
                 if (currentSheet.length === 0)
                     switch (combatFocusType) {
-                        case "0": sheet = await currentToken.actor.sheet.render(true);
+                        case "0": sheet = await currentToken.actor.sheet._render(true);
                             break;
                         case "1": {
-                            if (currentToken.data.actorLink === false) sheet = await currentToken.actor.sheet.render(true, { token: currentToken.actor.token });
+                            if (currentToken.data.actorLink === false) sheet = await currentToken.actor.sheet._render(true, { token: currentToken.actor.token });
                             else sheet = false;
                         }
                             break;
                         case "2": {
-                            if (currentToken.actor.hasPlayerOwner === false) sheet = await currentToken.actor.sheet.render(true, { token: currentToken.actor.token });
+                            if (currentToken.actor.hasPlayerOwner === false) sheet = await currentToken.actor.sheet._render(true, { token: currentToken.actor.token });
                             else sheet = false;
                         }
                             break;
@@ -359,12 +363,13 @@ class NextUP {
 
     static clearMarker(tokenId) {
         const removeToken = canvas.tokens.get(tokenId)
-        if(!removeToken) return;
+        if (!removeToken) return;
         const markers = removeToken.children.filter(i => i.NUMaker)
         if (!markers) return;
         markers.forEach(m => {
             TweenMax.killTweensOf(m)
-            m.destroy()
+            m.visible = false
+            m.rotation = 0
         })
     }
 
@@ -397,41 +402,48 @@ class NextUP {
         title.find("#nextup-pin #nextup-pin-icon").css('color', color);
     }
 
-    static async AddTurnMaker(token, grid) {
-        if (!game.settings.get("Next-Up", "markerEnable")) return;
+    static async createTurnMarker(tokenId) {
+        let token = canvas.tokens.get(tokenId)
         let prevMarker = token.children.filter(i => i.NUMaker)
         if (prevMarker.length > 0) {
             return;
         }
-
         const markerRatio = token.actor.getFlag("Next-Up", "markerRatio") || game.settings.get("Next-Up", "markerRatio")
         const markerImage = token.actor.getFlag("Next-Up", "markerImage") || NUMarkerImage
+        const gs = canvas.dimensions.size * markerRatio
         let markerTexture = await loadTexture(markerImage)
-        const textureSize = await grid.size * token.data.height
-        const animationSpeed = game.settings.get("Next-Up", "animateSpeed")
-        markerTexture.orig = { height: textureSize * markerRatio, width: textureSize * markerRatio, x: (textureSize * markerRatio) / 2, y: (textureSize * markerRatio) / 2 }
+        const textureSize = await canvas.grid.size * token.data.height
+        markerTexture.orig = { height: textureSize + gs, width: textureSize + gs, x: (textureSize + gs) / 2, y: (textureSize + gs) / 2 }
         // Add non-existent property
         markerTexture.isNUMarker = true
         let sprite = new PIXI.Sprite(markerTexture)
-        if (animationSpeed > 0) sprite.anchor.set(0.5)
+        sprite.anchor.set(0.5)
         let markerToken = token.addChild(sprite)
+        markerToken.position.x = canvas.grid.w * token.data.width / 2;
+        markerToken.position.y = canvas.grid.h * token.data.height / 2;
+        markerToken.visible = false
         token.sortableChildren = true
         markerToken.NUMaker = true
         if (game.settings.get("Next-Up", "iconLevel") === false) {
             markerToken.zIndex = -1
         }
 
+    }
+
+    static async AddTurnMaker(token, grid) {
+        let markerToken = token.children.find(i => i.NUMaker)
+        markerToken.visible = true
+        const animationSpeed = game.settings.get("Next-Up", "animateSpeed")
 
         if (animationSpeed !== 0) {
             TweenMax.to(markerToken, animationSpeed, { angle: 360, repeat: -1, ease: Linear.easeNone });
-            markerToken.transform.position = { x: grid.w * token.data.width / 2, y: grid.h * token.data.height / 2 };
         }
-        else markerToken.transform.position.set((textureSize - (textureSize * markerRatio)) / 2)
 
         NextUP.DropStartMarker(token, grid)
     }
 
     static async DropStartMarker(token, grid) {
+        if (!token.owner) return;
         switch (game.settings.get("Next-Up", "startMarker")) {
             case "0":
                 break;
