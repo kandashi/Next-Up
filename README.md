@@ -45,7 +45,7 @@ This module can:
 - Any value over 0 will add a rotation to the turn marker. This value is how many seconds per rotation (value of 1 = 1 second per full rotation)
 
 ## Turn Marker Ratio
-- How large compared to the token size will the marker appear 
+- How much the marker extends past the tokens border (measured in grid squares/hexes)
 
 
 ### Tokens Specific Images
