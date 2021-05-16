@@ -68,3 +68,4 @@ The Red, Yellow and Green circle images are created by Brimcon (Brimcon #1485 on
 
 The DoubleSquareMuted and PointedCircleMuted images are made by hobolyra (hobolyra #0967 on Discord)
 
+The cycle/oldwest/puzzle/rqhdg-6ypzz/runes.webm files are made by cefasheli on github

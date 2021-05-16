@@ -427,7 +427,12 @@ class NextUP {
         if (game.settings.get("Next-Up", "iconLevel") === false) {
             markerToken.zIndex = -1
         }
-
+        const source = getProperty(markerToken._texture, "baseTexture.resource.source")
+        if (source && (source.tagName === "VIDEO")) {
+            source.loop = true;
+            source.muted = true;
+            game.video.play(source);
+        }
     }
 
     static async AddTurnMaker(token, grid) {
