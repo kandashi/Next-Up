@@ -1,14 +1,23 @@
-import ImagePicker from "./ImagePicker.js";
+const debouncedReload = debounce(() => window.location.reload(), 100)
 import { libWrapper } from './shim.js';
-
 Hooks.on('init', () => {
+
+    game.settings.register("Next-Up", "combatFocusEnable", {
+        name: 'Auto Open Character Sheets',
+        hint: 'Enable opening of character sheets',
+        scope: 'world',
+        type: Boolean,
+        default: true,
+        config: true,
+    });
+
     game.settings.register("Next-Up", "combatFocusPostion", {
         name: 'Sheet Position',
-        hint: 'Enable opening of character sheets and choose its position',
+        hint: 'Position of opened character sheet',
         scope: 'world',
         type: String,
         choices: {
-            "0": "Disable opening character sheet",
+            "0": "Center",
             "1": "Top Left",
             "2": "Top Right",
         },
@@ -16,7 +25,7 @@ Hooks.on('init', () => {
         config: true,
     });
     game.settings.register("Next-Up", "combatFocusType", {
-        name: 'Sheets to Open',
+        name: 'Open Sheets: Actor Type Filter',
         hint: 'Which actor types should be automatically opened',
         scope: 'world',
         type: String,
@@ -29,7 +38,7 @@ Hooks.on('init', () => {
         config: true,
     });
     game.settings.register("Next-Up", "closetype", {
-        name: 'Sheets to Close',
+        name: 'Close Sheets: Actor Type Filter',
         hint: 'Which actor types should be automatically closed',
         scope: 'world',
         type: String,
@@ -42,7 +51,7 @@ Hooks.on('init', () => {
         config: true,
     });
     game.settings.register("Next-Up", "closewhich", {
-        name: 'Combatant Sheets to Close',
+        name: 'Close Sheets: Combatant Filter',
         hint: 'Which combatants sheets should be automatically closed',
         scope: 'world',
         type: String,
@@ -99,10 +108,11 @@ Hooks.on('init', () => {
     game.settings.register("Next-Up", "markerType", {
         name: 'Turn marker icon',
         scope: 'world',
-        type: ImagePicker.Image,
-        default: "[data] modules/Next-Up/Markers/DoubleSquare.png",
+        type: String,
+        default: "modules/Next-Up/Markers/DoubleSquare.png",
         config: true,
-        onChange: () => { window.location.reload() }
+        filePicker: true,
+        onChange: debouncedReload,
     });
     game.settings.register("Next-Up", "animateSpeed", {
         name: 'Animation speed for turn marker',
@@ -144,10 +154,11 @@ Hooks.on('init', () => {
     game.settings.register("Next-Up", "startMarkerImage", {
         name: 'Start-Turn Marker Icon',
         scope: 'world',
-        type: ImagePicker.Image,
-        default: "[data] modules/Next-Up/Markers/BlackCross.png",
+        type: String,
+        default: "modules/Next-Up/Markers/start.png",
         config: true,
-        onChange: () => { window.location.reload() }
+        filePicker: true,
+        onChange: debouncedReload,
     });
     game.settings.register("Next-Up", "startMarkerRatio", {
         name: 'Start Marker Ratio',
@@ -183,8 +194,8 @@ Hooks.once('ready', () => {
         NextUP.handleCombatUpdate(socketData.combat, socketData.changed)
     })
 
-    Hooks.on("createCombatant", (_combat, data) => {
-        NextUP.createTurnMarker(data.tokenId)
+    Hooks.on("createCombatant", (combatant) => {
+        NextUP.createTurnMarker(combatant.data.tokenId)
     })
     Hooks.on("preDeleteToken", (_scene, token) => {
         if (token.actorId === "") return;
@@ -196,7 +207,7 @@ Hooks.once('ready', () => {
         NextUP.clearShadows()
     })
 
-    Hooks.on("preUpdateCombat", NextUP.socketLaunch)
+    Hooks.on("updateCombat", NextUP.handleCombatUpdate)
 
     Hooks.on("updateToken", (_scene, token, update) => {
         if ("height" in update || "width" in update) {
@@ -208,45 +219,25 @@ Hooks.once('ready', () => {
             }
         }
     })
+
+    Hooks.on("renderActorSheet", NextUP.addPinButton )
 })
 
-Hooks.on("canvasInit", () => {
-    NextUpChangeImage();
-
-    Hooks.once("canvasPan", async () => {
-        let combat = game.combats?.find(i => i.data.scene === canvas.scene._id)
-        if (combat) {
-            for (let t of combat.combatants) { await NextUP.createTurnMarker(t.tokenId) }
-            let token = canvas.tokens.get(combat.current?.tokenId)
-            NextUP.AddTurnMaker(token, canvas.grid)
-        }
-
-    })
+Hooks.on("canvasReady", async () => {
+    await NextUpChangeImage();
+    let tokens = canvas.tokens.placeables.filter(t => t.inCombat)
+    for (let t of tokens) { await NextUP.createTurnMarker(t.data._id) }
+    let token = canvas.tokens.get(game.combat?.current?.tokenId)
+    NextUP.AddTurnMaker(token, canvas.grid)
 })
 
 
 let NUMarkerImage;
 
 async function NextUpChangeImage() {
-    canvas.tokens.placeables.forEach(i => {
-        let markers = i.children.filter(i => i.NUMaker)
-        if (!markers) return;
-        markers.forEach(m => {
-            TweenMax.killTweensOf(m)
-            m.destroy()
-        })
-    })
     if (!game.settings.get("Next-Up", "markerEnable")) return;
     NUMarkerImage = await game.settings.get("Next-Up", "markerType")
     if (NUMarkerImage === "") return;
-    NUMarkerImage = NUMarkerImage.substring(7)
-    let combat = game.combats?.find(i => i.data.scene === canvas.scene._id)
-    if (combat) {
-        let currentToken = canvas.tokens.get(combat.current.tokenId)
-        if (currentToken) {
-            AddTurnMaker(currentToken, canvas.grid);
-        }
-    }
 }
 
 class NextUP {
@@ -270,10 +261,8 @@ class NextUP {
         if (game.combats.get(combat.id).data.combatants.length == 0) return;
         const playerPanEnable = game.settings.get('Next-Up', 'playerPanEnable');
         const playerPan = game.settings.get('Next-Up', 'playerPan');
-        const nextTurnIndex = changed.turn
-        const previousTurnIndex = combat.current.turn
-        const nextToken = canvas.tokens.get(combat.turns[nextTurnIndex].tokenId);
-        const previousToken = canvas.tokens.get(combat.turns[previousTurnIndex].tokenId)
+        const nextToken = canvas.tokens.get(combat.current.tokenId)
+        const previousToken = canvas.tokens.get(combat.previous.tokenId)
         if (game.settings.get("Next-Up", "markerEnable")) {
             NextUP.clearMarker(previousToken.id)
             NextUP.AddTurnMaker(nextToken, canvas.grid)
@@ -288,6 +277,7 @@ class NextUP {
     }
 
     static async cycleSheets(currentToken, previousToken) {
+        const combatFocusEnable = game.settings.get("Next-Up", "combatFocusEnable");
         const combatFocusPostion = game.settings.get('Next-Up', 'combatFocusPostion');
         const closeWhich = game.settings.get('Next-Up', 'closewhich');
         const combatFocusType = game.settings.get('Next-Up', 'combatFocusType');
@@ -298,41 +288,39 @@ class NextUP {
             if (autoControl) await currentToken.control()
             const currentWindows = Object.values(ui.windows);
 
-            if (combatFocusPostion !== "0") {
+            if (combatFocusEnable) {
                 let currentSheet = currentWindows.filter(i => i.token?.id === currentToken.id);
                 let sheet;
                 if (currentSheet.length === 0)
-                    switch (combatFocusType) {
-                        case "0": sheet = await currentToken.actor.sheet._render(true);
-                            break;
-                        case "1": {
-                            if (currentToken.data.actorLink === false) sheet = await currentToken.actor.sheet._render(true, { token: currentToken.actor.token });
-                            else sheet = false;
+                    Hooks.once("renderActorSheet", async (sheet) => {
+                        let rightPos = window.innerWidth - sheet.position.width - 310;
+                        let sheetPinned = sheet.pinned === true ? true : false;
+                        switch (combatFocusPostion) {
+                            case "1" : break;
+                            case "1": if (!sheetPinned) await sheet.setPosition({ left: 107, top: 46 });
+                                break;
+                            case "2": if (!sheetPinned) await sheet.setPosition({ left: rightPos, top: 46 });
                         }
-                            break;
-                        case "2": {
-                            if (currentToken.actor.hasPlayerOwner === false) sheet = await currentToken.actor.sheet._render(true, { token: currentToken.actor.token });
-                            else sheet = false;
+                        if (game.settings.get("Next-Up", "popout")) {
+                            await PopoutModule.singleton.onPopoutClicked("1", sheet)
                         }
-                            break;
+                    });
+                switch (combatFocusType) {
+                    case "0": sheet = await currentToken.actor.sheet._render(true);
+                        break;
+                    case "1": {
+                        if (currentToken.data.actorLink === false) sheet = await currentToken.actor.sheet._render(true, { token: currentToken.actor.token });
+                        else sheet = false;
                     }
-                else sheet = currentSheet[0];
-
-                Hooks.once("renderActorSheet", async (sheet) => {
-                    let rightPos = window.innerWidth - sheet.position.width - 310;
-                    let sheetPinned = sheet.pinned === true ? true : false;
-                    switch (combatFocusPostion) {
-                        case "1": if (!sheetPinned) await sheet.setPosition({ left: 107, top: 46 });
-                            break;
-                        case "2": if (!sheetPinned) await sheet.setPosition({ left: rightPos, top: 46 });
+                        break;
+                    case "2": {
+                        if (currentToken.actor.hasPlayerOwner === false) sheet = await currentToken.actor.sheet._render(true, { token: currentToken.actor.token });
+                        else sheet = false;
                     }
-                    if (game.settings.get("Next-Up", "popout")) {
-                        await PopoutModule.singleton.onPopoutClicked("1", sheet)
-                    }
-                });
-
-
+                        break;
+                }
             }
+            else sheet = currentSheet[0];
 
             switch (closeWhich) {
                 case "0": break;
@@ -374,7 +362,7 @@ class NextUP {
     }
 
     static async clearShadows() {
-        const shadows = canvas.tiles.children.filter(i => i.isShadow)
+        const shadows = canvas.background.children.filter(i => i.isShadow)
         for (let shadow of shadows) {
             await shadow.destroy()
         }
@@ -389,11 +377,11 @@ class NextUP {
         const title = html.find('.window-title');
 
         title.prepend(pinButton);
-        this.restyleButton(html, app.pinned)
+        NextUP.restyleButton(html, app.pinned)
 
         title.find("#nextup-pin").click(async (_event) => {
             app.pinned = !app.pinned
-            this.restyleButton(title, app.pinned)
+            NextUP.restyleButton(title, app.pinned)
         })
     }
 
@@ -410,13 +398,15 @@ class NextUP {
         }
         const markerRatio = token.actor.getFlag("Next-Up", "markerRatio") || game.settings.get("Next-Up", "markerRatio")
         const markerImage = token.actor.getFlag("Next-Up", "markerImage") || NUMarkerImage
-        const gs = canvas.dimensions.size * markerRatio
+        let gs = canvas.dimensions.size * markerRatio
         let markerTexture = await loadTexture(markerImage)
-        const textureSize = await canvas.grid.size * token.data.height
-        markerTexture.orig = { height: textureSize + gs, width: textureSize + gs, x: (textureSize + gs) / 2, y: (textureSize + gs) / 2 }
+        const textureSize = canvas.grid.size + gs
+        markerTexture.orig = { height: textureSize, width: textureSize, x: textureSize / 2, y: textureSize / 2 }
         // Add non-existent property
         markerTexture.isNUMarker = true
         let sprite = new PIXI.Sprite(markerTexture)
+        let scale = token.data.height
+        sprite.transform.scale.set(scale)
         sprite.anchor.set(0.5)
         let markerToken = token.addChild(sprite)
         markerToken.position.x = canvas.grid.w * token.data.width / 2;
@@ -460,7 +450,7 @@ class NextUP {
                 let sprite = new PIXI.Sprite(markerTexture)
                 sprite.height = textureSize
                 sprite.width = textureSize
-                let startMarker = canvas.tiles.addChild(sprite)
+                let startMarker = canvas.background.addChild(sprite)
                 startMarker.transform.position.set(token.data.x - offset, token.data.y - offset)
                 startMarker.isShadow = true
                 startMarker.tint = 9410203
@@ -478,7 +468,7 @@ class NextUP {
                 let sprite = new PIXI.Sprite(startMarkerTexture)
                 sprite.height = textureSize
                 sprite.width = textureSize
-                let startMarker = canvas.tiles.addChild(sprite)
+                let startMarker = canvas.background.addChild(sprite)
                 startMarker.transform.position.set(token.data.x - offset, token.data.y - offset)
                 startMarker.isShadow = true
                 startMarker.alpha = 0.7
