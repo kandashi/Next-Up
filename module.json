@@ -16,6 +16,7 @@
     "esmodules": [
       "/src/nextUp.js"        
   ],
+  "socket": true,
   "scripts": [
     "greensock/dist/gsap.min.js"
   ],
@@ -30,7 +31,7 @@
     "manifest": "https://raw.githubusercontent.com/kandashi/Next-Up/main/module.json",
     "download": "https://github.com/kandashi/Next-Up/archive/main.zip",
     "minimumCoreVersion": "0.7.5",
-    "compatibleCoreVersion": "0.8.0",
+    "compatibleCoreVersion": "0.8.5",
     "allowBugReporter": true,
     "bugs": "https://github.com/kandashi/Next-Up/issues"
 }
