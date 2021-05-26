@@ -14,7 +14,7 @@
       }
     ],
     "esmodules": [
-      "/src/combatFocus.js"        
+      "/src/nextUp.js"        
   ],
   "scripts": [
     "greensock/dist/gsap.min.js"
