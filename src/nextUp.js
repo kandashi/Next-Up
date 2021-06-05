@@ -216,7 +216,7 @@ Hooks.once('ready', () => {
         }
     })
 
-    Hooks.on("renderActorSheet", NextUP.addPinButton )
+    Hooks.on("renderActorSheet", NextUP.addPinButton)
 })
 
 Hooks.on("canvasReady", async () => {
@@ -224,7 +224,9 @@ Hooks.on("canvasReady", async () => {
     let tokens = canvas.tokens.placeables.filter(t => t.inCombat)
     for (let t of tokens) { await NextUP.createTurnMarker(t.data._id) }
     let token = canvas.tokens.get(game.combat?.current?.tokenId)
-    NextUP.AddTurnMaker(token, canvas.grid)
+    if (token) {
+        NextUP.AddTurnMaker(token, canvas.grid)
+    }
 })
 
 
@@ -239,6 +241,7 @@ async function NextUpChangeImage() {
 class NextUP {
 
     static async handleCombatUpdate(combat, changed) {
+        if (canvas.scene === null) return;
         //if (combat.round === 0 || changed?.round === 0) return;
         if (!("turn" in changed) && changed.round !== 1) return;
         if (game.combats.get(combat.id).data.combatants.length == 0) return;
@@ -279,7 +282,7 @@ class NextUP {
                         let rightPos = window.innerWidth - sheet.position.width - 310;
                         let sheetPinned = sheet.pinned === true ? true : false;
                         switch (combatFocusPostion) {
-                            case "1" : break;
+                            case "1": break;
                             case "1": if (!sheetPinned) await sheet.setPosition({ left: 107, top: 46 });
                                 break;
                             case "2": if (!sheetPinned) await sheet.setPosition({ left: rightPos, top: 46 });
@@ -352,6 +355,7 @@ class NextUP {
     }
 
     static addPinButton(app, html, _data) {
+        if (game.settings.get("Next-Up", "removePin")) return;
         const pinButton = `
         <button id="nextup-pin" class="nextup-button" title="Pin Actor Sheet" style="height:30px;width:30px">
             <i id="nextup-pin-icon" style="color: white" class="fas fa-thumbtack"></i>
