@@ -170,8 +170,14 @@ Hooks.on('init', () => {
     });
     game.settings.register("Next-Up", "controlOption", {
         name: 'Auto Control Next Token',
-        scope: 'world',
-        type: Boolean,
+        scope: 'client',
+        type: String,
+        choices: {
+            "none": "None",
+            "npc": "NPCs Only",
+            "pc": "PCs only",
+            "all" : "All"
+        },
         default: true,
         config: true,
     });
@@ -269,20 +275,30 @@ class NextUP {
         const combatFocusType = game.settings.get('Next-Up', 'combatFocusType');
         const autoControl = game.settings.get('Next-Up', 'controlOption');
 
+        switch (autoControl) {
+            case "none": break;
+            case "npc" : if(currentToken.actor.type === "npc") await currentToken.control()
+            break;
+            case "pc" : if(currentToken.actor.type === "character") await currentToken.control()
+            break; 
+            case "all" : await currentToken.control()
+            break;
+
+        }
         if (game.user.isGM) {
 
-            if (autoControl) await currentToken.control()
+            
             const currentWindows = Object.values(ui.windows);
 
+            let currentSheet = currentWindows.filter(i => i.token?.id === currentToken.id);
+            let sheet;
             if (combatFocusEnable) {
-                let currentSheet = currentWindows.filter(i => i.token?.id === currentToken.id);
-                let sheet;
                 if (currentSheet.length === 0)
                     Hooks.once("renderActorSheet", async (sheet) => {
                         let rightPos = window.innerWidth - sheet.position.width - 310;
                         let sheetPinned = sheet.pinned === true ? true : false;
                         switch (combatFocusPostion) {
-                            case "1": break;
+                            case "0": break;
                             case "1": if (!sheetPinned) await sheet.setPosition({ left: 107, top: 46 });
                                 break;
                             case "2": if (!sheetPinned) await sheet.setPosition({ left: rightPos, top: 46 });
