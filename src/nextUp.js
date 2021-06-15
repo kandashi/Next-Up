@@ -209,6 +209,10 @@ Hooks.once('ready', () => {
         NextUP.clearShadows()
     })
 
+    Hooks.on("deleteCombatant", (combatant) => {
+        NextUP.clearMarker(combatant.token.id)
+    })
+
     Hooks.on("updateCombat", NextUP.handleCombatUpdate)
 
     Hooks.on("updateToken", (_scene, token, update) => {
