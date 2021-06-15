@@ -468,7 +468,7 @@ class NextUP {
                 if (token.data.hidden && !game.user.isGM) return;
                 let ratio = token.actor.getFlag("Next-Up", "startMarkerRatio") || game.settings.get("Next-Up", "startMarkerRatio")
                 let NUStartImage = await game.settings.get("Next-Up", "startMarkerImage")
-                let startImage = token.actor.getFlag("Next-Up", "startMarkerImage") || NUStartImage.substring(7)
+                let startImage = token.actor.getFlag("Next-Up", "startMarkerImage") || NUStartImage
                 let startMarkerTexture = await loadTexture(startImage)
                 const textureSize = grid.size * token.data.height * ratio
                 const offset = (textureSize - (grid.size * token.data.height)) / 2
