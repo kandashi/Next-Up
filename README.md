@@ -52,6 +52,14 @@ This module can:
 - You can now set token specific markers by setting a flag on the token
 - token.setflag("Next-Up", "markerImage"/"markerRatio", "path to image"/ratio)
 
+### Target Clearing
+- You can set for targets to be cleared for each user at the end of a turn
+
+
+### Start Turn Audio Cue
+- You can set an audio cue to play for the players assigned character on their turn
+- This can be set individually by the flag Next-Up.audioPath
+
 
 ## Licensing
 
