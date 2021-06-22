@@ -20,6 +20,8 @@ Hooks.on('init', () => {
             "0": "Center",
             "1": "Top Left",
             "2": "Top Right",
+            "3": "Bottom Left",
+            "4": "Bottom Right",
         },
         default: "0",
         config: true,
@@ -176,12 +178,34 @@ Hooks.on('init', () => {
             "none": "None",
             "npc": "NPCs Only",
             "pc": "PCs only",
-            "all" : "All"
+            "all": "All"
         },
-        default: true,
+        default: "All",
         config: true,
     });
-
+    game.settings.register("Next-Up", "clearTargets", {
+        name: 'Auto Clear User Targets',
+        scope: 'client',
+        type: Boolean,
+        default: false,
+        config: true,
+    });
+    game.settings.register("Next-Up", "audioCue", {
+        name: 'Turn Start Audio Cue',
+        scope: 'world',
+        type: Boolean,
+        default: false,
+        config: true
+    });
+    game.settings.register("Next-Up", "audioPath", {
+        name: 'Audio Cue Path',
+        scope: 'world',
+        type: String,
+        default: "",
+        config: true,
+        filePicker: true,
+        onChange: debouncedReload,
+    });
     libWrapper.register('Next-Up', 'TokenLayer.prototype.tearDown', newTearDown, 'WRAPPER')
 })
 
@@ -194,12 +218,19 @@ function newTearDown(wrapped, ...args) {
 }
 
 
+
+function newRefresh(wrapped, ...args) {
+    TweenMax.killTweensOf(this.children)
+    return wrapped(...args)
+}
+
+
 Hooks.once('ready', () => {
 
     Hooks.on("createCombatant", (combatant) => {
         NextUP.createTurnMarker(combatant.data.tokenId)
     })
-    Hooks.on("preDeleteToken", (_scene, token) => {
+    Hooks.on("preDeleteToken", (token) => {
         if (token.actorId === "") return;
         NextUP.clearMarker(token._id)
     })
@@ -215,18 +246,18 @@ Hooks.once('ready', () => {
 
     Hooks.on("updateCombat", NextUP.handleCombatUpdate)
 
-    Hooks.on("updateToken", (_scene, token, update) => {
+    Hooks.on("preUpdateToken", (token, update) => {
         if ("height" in update || "width" in update) {
-            const removeToken = canvas.tokens.get(token._id)
-            const marker = removeToken.children.find(i => i.NUMaker)
-            if (marker) {
-                NextUP.clearMarker(token._id)
-                NextUP.createTurnMarker(token, canvas.grid)
-            }
-        }
+            let markerToken = token.object?.children.find(i => i.NUMaker)
+            TweenMax.killTweensOf(token.object?.children);
+            Hooks.once("updateToken", async (token, update) => {
+                await NextUP.createTurnMarker(token.id, canvas.grid);
+                if (markerToken.NUMaker) NextUP.AddTurnMaker(token.object, canvas.grid)
+        })
+}
     })
 
-    Hooks.on("renderActorSheet", NextUP.addPinButton)
+Hooks.on("renderActorSheet", NextUP.addPinButton)
 })
 
 Hooks.on("canvasReady", async () => {
@@ -270,6 +301,22 @@ class NextUP {
         if (playerPanEnable && playerPan && (nextToken.isVisible || game.user === firstGm)) {
             canvas.animatePan({ x: nextToken.center.x, y: nextToken.center.y, duration: 250 });
         }
+        if (game.settings.get("Next-Up", "clearTargets")) {
+            game.user.updateTokenTargets()
+        }
+        if (game.settings.get("Next-Up", "audioCue")) {
+            if (nextToken.actor.id === game.user.character?.id) NextUP.audioCue()
+        }
+    }
+
+    static audioCue() {
+        const data = {
+            src: game.user.character.getFlag("Next-Up", "audioPath") || game.settings.get("Next-Up", "audioPath"),
+            volume: 0.5,
+            autoplay: true,
+            loop: false,
+        }
+        AudioHelper.play(data, false)
     }
 
     static async cycleSheets(currentToken, previousToken) {
@@ -281,17 +328,17 @@ class NextUP {
 
         switch (autoControl) {
             case "none": break;
-            case "npc" : if(currentToken.actor.type === "npc") await currentToken.control()
-            break;
-            case "pc" : if(currentToken.actor.type === "character") await currentToken.control()
-            break; 
-            case "all" : await currentToken.control()
-            break;
+            case "npc": if (currentToken.actor.type === "npc") await currentToken.control()
+                break;
+            case "pc": if (currentToken.actor.type === "character") await currentToken.control()
+                break;
+            case "all": await currentToken.control()
+                break;
 
         }
         if (game.user.isGM) {
 
-            
+
             const currentWindows = Object.values(ui.windows);
 
             let currentSheet = currentWindows.filter(i => i.token?.id === currentToken.id);
@@ -300,12 +347,18 @@ class NextUP {
                 if (currentSheet.length === 0)
                     Hooks.once("renderActorSheet", async (sheet) => {
                         let rightPos = window.innerWidth - sheet.position.width - 310;
+                        let topPos = window.innerHeight - sheet.position.height - 80
                         let sheetPinned = sheet.pinned === true ? true : false;
                         switch (combatFocusPostion) {
                             case "0": break;
                             case "1": if (!sheetPinned) await sheet.setPosition({ left: 107, top: 46 });
                                 break;
                             case "2": if (!sheetPinned) await sheet.setPosition({ left: rightPos, top: 46 });
+                                break;
+                            case "3": if (!sheetPinned) await sheet.setPosition({ left: 107, top: topPos });
+                                break;
+                            case "4": if (!sheetPinned) await sheet.setPosition({ left: rightPos, top: topPos });
+                                break;
                         }
                         if (game.settings.get("Next-Up", "popout")) {
                             await PopoutModule.singleton.onPopoutClicked("1", sheet)
@@ -453,12 +506,14 @@ class NextUP {
                 if (token.data.hidden && !game.user.isGM) return;
                 let markerTexture = await loadTexture(token.data.img)
                 const textureSize = grid.size * token.data.height * token.data.scale
-                const offset = (textureSize - (grid.size * token.data.height)) / 2
+                const offsetX = (textureSize - (canvas.grid.w * token.data.width)) / 2
+                const offsetY = (textureSize - (canvas.grid.h * token.data.height)) / 2
                 let sprite = new PIXI.Sprite(markerTexture)
                 sprite.height = textureSize
                 sprite.width = textureSize
                 let startMarker = canvas.background.addChild(sprite)
-                startMarker.transform.position.set(token.data.x - offset, token.data.y - offset)
+                startMarker.position.x = token.data.x - offsetX
+                startMarker.position.y = token.data.y - offsetY
                 startMarker.isShadow = true
                 startMarker.tint = 9410203
                 startMarker.alpha = 0.7
@@ -471,12 +526,14 @@ class NextUP {
                 let startImage = token.actor.getFlag("Next-Up", "startMarkerImage") || NUStartImage
                 let startMarkerTexture = await loadTexture(startImage)
                 const textureSize = grid.size * token.data.height * ratio
-                const offset = (textureSize - (grid.size * token.data.height)) / 2
+                const offsetX = (textureSize - (canvas.grid.w * token.data.width)) / 2
+                const offsetY = (textureSize - (canvas.grid.h * token.data.height)) / 2
                 let sprite = new PIXI.Sprite(startMarkerTexture)
                 sprite.height = textureSize
                 sprite.width = textureSize
                 let startMarker = canvas.background.addChild(sprite)
-                startMarker.transform.position.set(token.data.x - offset, token.data.y - offset)
+                startMarker.position.x = token.data.x - offsetX
+                startMarker.position.y = token.data.y - offsetY
                 startMarker.isShadow = true
                 startMarker.alpha = 0.7
             }
