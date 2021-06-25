@@ -262,6 +262,7 @@ Hooks.on("renderActorSheet", NextUP.addPinButton)
 
 Hooks.on("canvasReady", async () => {
     await NextUpChangeImage();
+    if (!game.settings.get("Next-Up", "markerEnable")) return;
     let tokens = canvas.tokens.placeables.filter(t => t.inCombat)
     for (let t of tokens) { await NextUP.createTurnMarker(t.data._id) }
     let token = canvas.tokens.get(game.combat?.current?.tokenId)
@@ -365,15 +366,15 @@ class NextUP {
                         }
                     });
                 switch (combatFocusType) {
-                    case "0": sheet = await currentToken.actor.sheet._render(true);
+                    case "0": sheet = await currentToken.actor.sheet.render(true);
                         break;
                     case "1": {
-                        if (currentToken.data.actorLink === false) sheet = await currentToken.actor.sheet._render(true, { token: currentToken.actor.token });
+                        if (currentToken.data.actorLink === false) sheet = await currentToken.actor.sheet.render(true);
                         else sheet = false;
                     }
                         break;
                     case "2": {
-                        if (currentToken.actor.hasPlayerOwner === false) sheet = await currentToken.actor.sheet._render(true, { token: currentToken.actor.token });
+                        if (currentToken.actor.hasPlayerOwner === false) sheet = await currentToken.actor.sheet.render(true);
                         else sheet = false;
                     }
                         break;
@@ -451,6 +452,7 @@ class NextUP {
     }
 
     static async createTurnMarker(tokenId) {
+        if (!game.settings.get("Next-Up", "markerEnable")) return;
         let token = canvas.tokens.get(tokenId)
         let prevMarker = token.children.filter(i => i.NUMaker)
         if (prevMarker.length > 0) {
