@@ -362,7 +362,7 @@ class NextUP {
                                 break;
                         }
                         if (game.settings.get("Next-Up", "popout")) {
-                            await PopoutModule.singleton.onPopoutClicked("1", sheet)
+                            await PopoutModule.singleton.onPopoutClicked(sheet.object.apps[sheet.appId], sheet);
                         }
                     });
                 switch (combatFocusType) {
