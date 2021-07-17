@@ -65,6 +65,14 @@ Hooks.on('init', () => {
         default: "0",
         config: true,
     });
+    game.settings.register("Next-Up", "closeOnEnd", {
+        name: 'Close Sheets: Combat End',
+        hint: 'Close all actor sheets on combat end',
+        scope: 'world',
+        type: Boolean,
+        default: false,
+        config: true,
+    });
 
     game.settings.register("Next-Up", "popout", {
         name: 'Popout Actor Sheets',
@@ -206,6 +214,14 @@ Hooks.on('init', () => {
         filePicker: true,
         onChange: debouncedReload,
     });
+    game.settings.register("Next-Up", "audioVolume", {
+        name: 'Audio Cue Volume',
+        scope: 'client',
+        type: String,
+        default: "0.5",
+        config: true,
+        onChange: debouncedReload,
+    });
     libWrapper.register('Next-Up', 'TokenLayer.prototype.tearDown', newTearDown, 'WRAPPER')
 })
 
@@ -238,6 +254,7 @@ Hooks.once('ready', () => {
     Hooks.on("deleteCombat", (combat) => {
         NextUP.clearMarker(combat.current?.tokenId)
         NextUP.clearShadows()
+        NextUP.closeAll()
     })
 
     Hooks.on("deleteCombatant", (combatant) => {
@@ -253,11 +270,11 @@ Hooks.once('ready', () => {
             Hooks.once("updateToken", async (token, update) => {
                 await NextUP.createTurnMarker(token.id, canvas.grid);
                 if (markerToken.NUMaker) NextUP.AddTurnMaker(token.object, canvas.grid)
-        })
-}
+            })
+        }
     })
 
-Hooks.on("renderActorSheet", NextUP.addPinButton)
+    Hooks.on("renderActorSheet", NextUP.addPinButton)
 })
 
 Hooks.on("canvasReady", async () => {
@@ -282,7 +299,17 @@ async function NextUpChangeImage() {
 
 class NextUP {
 
+    static closeAll() {
+        if (!game.settings.get("Next-Up", "closeOnEnd")) return
+        const currentWindows = Object.values(ui.windows);
+
+        for (let window of currentWindows) {
+            if (window.actor) window.close()
+        }
+    }
+
     static async handleCombatUpdate(combat, changed) {
+
         if (canvas.scene === null) return;
         //if (combat.round === 0 || changed?.round === 0) return;
         if (!("turn" in changed) && changed.round !== 1) return;
@@ -306,14 +333,14 @@ class NextUP {
             game.user.updateTokenTargets()
         }
         if (game.settings.get("Next-Up", "audioCue")) {
-            if (nextToken.actor.id === game.user.character?.id) NextUP.audioCue()
+            if (nextToken.actor?.id === game.user.character?.id) NextUP.audioCue()
         }
     }
 
     static audioCue() {
         const data = {
             src: game.user.character.getFlag("Next-Up", "audioPath") || game.settings.get("Next-Up", "audioPath"),
-            volume: 0.5,
+            volume: game.settings.get("Next-Up", "audioVolume"),
             autoplay: true,
             loop: false,
         }
@@ -329,9 +356,9 @@ class NextUP {
 
         switch (autoControl) {
             case "none": break;
-            case "npc": if (currentToken.actor.type === "npc") await currentToken.control()
+            case "npc": if (currentToken.actor?.type === "npc") await currentToken.control()
                 break;
-            case "pc": if (currentToken.actor.type === "character") await currentToken.control()
+            case "pc": if (currentToken.actor?.type === "character") await currentToken.control()
                 break;
             case "all": await currentToken.control()
                 break;
@@ -366,15 +393,15 @@ class NextUP {
                         }
                     });
                 switch (combatFocusType) {
-                    case "0": sheet = await currentToken.actor.sheet.render(true);
+                    case "0": sheet = await currentToken.actor?.sheet.render(true);
                         break;
                     case "1": {
-                        if (currentToken.data.actorLink === false) sheet = await currentToken.actor.sheet.render(true);
+                        if (currentToken.data.actorLink === false) sheet = await currentToken.actor?.sheet.render(true);
                         else sheet = false;
                     }
                         break;
                     case "2": {
-                        if (currentToken.actor.hasPlayerOwner === false) sheet = await currentToken.actor.sheet.render(true);
+                        if (currentToken.actor?.hasPlayerOwner === false) sheet = await currentToken.actor?.sheet.render(true);
                         else sheet = false;
                     }
                         break;
@@ -384,14 +411,13 @@ class NextUP {
 
             switch (closeWhich) {
                 case "0": break;
-                case "1": {
-                    let window = (currentWindows.find(i => i.actor?.token?.id === previousToken.id) || currentWindows.find(i => i.actor?.id === previousToken.actor.id));
-                    if (window) this.CloseSheet(previousToken.actor.data.token.actorLink, window)
-                }
+                case "1":
+                    let window = currentWindows.find(i => i.actor?.token?.id === previousToken.id) || currentWindows.find(i => i.actor?.id === previousToken.actor?.id);
+                    if (window && window.actor) this.CloseSheet(previousToken.actor?.data.token.actorLink, window)
                     break;
                 case "2": for (let window of currentWindows) {
-                    switch (currentToken.actor.data.token.actorLink) {
-                        case true: if (window.actor && window.actor.id !== currentToken.actor.id) NextUP.CloseSheet(window.actor.data.token.actorLink, window)
+                    switch (currentToken.actor?.data.token.actorLink) {
+                        case true: if (window.actor && window.actor.id !== currentToken.actor?.id) NextUP.CloseSheet(window.actor.data.token.actorLink, window)
                             break;
                         case false:
                             if (window.actor) this.CloseSheet(window.actor.data.token.actorLink, window)
@@ -458,8 +484,8 @@ class NextUP {
         if (prevMarker.length > 0) {
             return;
         }
-        const markerRatio = token.actor.getFlag("Next-Up", "markerRatio") || game.settings.get("Next-Up", "markerRatio")
-        const markerImage = token.actor.getFlag("Next-Up", "markerImage") || NUMarkerImage
+        const markerRatio = token.actor?.getFlag("Next-Up", "markerRatio") || game.settings.get("Next-Up", "markerRatio")
+        const markerImage = token.actor?.getFlag("Next-Up", "markerImage") || NUMarkerImage
         let gs = canvas.dimensions.size * markerRatio
         let markerTexture = await loadTexture(markerImage)
         const textureSize = canvas.grid.size + gs
@@ -523,9 +549,9 @@ class NextUP {
                 break;
             case "2": {
                 if (token.data.hidden && !game.user.isGM) return;
-                let ratio = token.actor.getFlag("Next-Up", "startMarkerRatio") || game.settings.get("Next-Up", "startMarkerRatio")
+                let ratio = token.actor?.getFlag("Next-Up", "startMarkerRatio") || game.settings.get("Next-Up", "startMarkerRatio")
                 let NUStartImage = await game.settings.get("Next-Up", "startMarkerImage")
-                let startImage = token.actor.getFlag("Next-Up", "startMarkerImage") || NUStartImage
+                let startImage = token.actor?.getFlag("Next-Up", "startMarkerImage") || NUStartImage
                 let startMarkerTexture = await loadTexture(startImage)
                 const textureSize = grid.size * token.data.height * ratio
                 const offsetX = (textureSize - (canvas.grid.w * token.data.width)) / 2
