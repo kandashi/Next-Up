@@ -3,3 +3,6 @@
 - Fixed markers appearing before combat was started
 - Added option to individually change audio cue volume for clients
 - Added option to close *all* actor sheets when combat ends
+
+## 0.1.08  
+- Fixes for SWADE system
