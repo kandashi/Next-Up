@@ -266,7 +266,7 @@ Hooks.once('ready', () => {
     Hooks.on("updateCombat", NextUP.handleCombatUpdate)
 
     Hooks.on("preUpdateToken", (token, update) => {
-        if ("height" in update || "width" in update) {
+        if ("height" in update || "width" in update || "img" in update) {
             let markerToken = token.object?.children.find(i => i.NUMaker)
             TweenMax.killTweensOf(token.object?.children);
             Hooks.once("updateToken", async (token, update) => {
@@ -372,9 +372,9 @@ class NextUP {
 
         switch (autoControl) {
             case "none": break;
-            case "npc": if (currentToken.actor?.type === "npc") await currentToken.control()
+            case "npc": if (!currentToken.actor?.hasPlayerOwner) await currentToken.control()
                 break;
-            case "pc": if (currentToken.actor?.type === "character") await currentToken.control()
+            case "pc": if (currentToken.hasPlayerOwner) await currentToken.control()
                 break;
             case "all": await currentToken.control()
                 break;
