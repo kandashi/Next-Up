@@ -1,5 +1,7 @@
 const debouncedReload = debounce(() => window.location.reload(), 100)
 import { libWrapper } from './shim.js';
+
+
 Hooks.on('init', () => {
 
     game.settings.register("Next-Up", "combatFocusEnable", {
@@ -264,7 +266,7 @@ Hooks.once('ready', () => {
     Hooks.on("updateCombat", NextUP.handleCombatUpdate)
 
     Hooks.on("preUpdateToken", (token, update) => {
-        if ("height" in update || "width" in update) {
+        if ("height" in update || "width" in update || "img" in update) {
             let markerToken = token.object?.children.find(i => i.NUMaker)
             TweenMax.killTweensOf(token.object?.children);
             Hooks.once("updateToken", async (token, update) => {
@@ -288,6 +290,12 @@ Hooks.on("canvasReady", async () => {
     }
 })
 
+Hooks.on("updateCombatant", (combatant) => {
+    if(game.system.id !== "swade") return
+    let debouncedUpdate = debounce(NextUP.handleCombatUpdate, 50)
+    debouncedUpdate(combatant.parent, {turn: 1, round: 2})
+})
+
 
 let NUMarkerImage;
 
@@ -298,6 +306,8 @@ async function NextUpChangeImage() {
 }
 
 class NextUP {
+
+
 
     static closeAll() {
         if (!game.settings.get("Next-Up", "closeOnEnd")) return
@@ -319,6 +329,12 @@ class NextUP {
         const nextToken = canvas.tokens.get(combat.current.tokenId)
         const previousToken = canvas.tokens.get(combat.previous.tokenId)
         if (game.settings.get("Next-Up", "markerEnable")) {
+            if(game.system.id==="swade"){
+                let combatTokens = canvas.tokens.placeables.filter(i => i.inCombat)
+                for(let t of combatTokens){
+                    NextUP.clearMarker(t.id)
+                }
+            }
             NextUP.clearMarker(previousToken.id)
             NextUP.AddTurnMaker(nextToken, canvas.grid)
         }
@@ -356,9 +372,9 @@ class NextUP {
 
         switch (autoControl) {
             case "none": break;
-            case "npc": if (currentToken.actor?.type === "npc") await currentToken.control()
+            case "npc": if (!currentToken.actor?.hasPlayerOwner) await currentToken.control()
                 break;
-            case "pc": if (currentToken.actor?.type === "character") await currentToken.control()
+            case "pc": if (currentToken.hasPlayerOwner) await currentToken.control()
                 break;
             case "all": await currentToken.control()
                 break;
