@@ -6,3 +6,4 @@
 
 ## 0.1.08  
 - Fixes for SWADE system
+- Fixes for polymorphing in dnd5e
