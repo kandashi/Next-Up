@@ -267,6 +267,7 @@ Hooks.once('ready', () => {
 
     Hooks.on("preUpdateToken", (token, update) => {
         if ("height" in update || "width" in update || "img" in update) {
+            if(!token.inCombat) return;
             let markerToken = token.object?.children.find(i => i.NUMaker)
             TweenMax.killTweensOf(token.object?.children);
             Hooks.once("updateToken", async (token, update) => {
