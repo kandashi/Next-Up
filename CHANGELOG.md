@@ -7,3 +7,6 @@
 ## 0.1.08  
 - Fixes for SWADE system
 - Fixes for polymorphing in dnd5e
+
+## 0.1.09
+- Fixed issue with polymorphing, changing image or size outside combat
