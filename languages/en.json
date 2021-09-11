@@ -1,0 +1,74 @@
+{
+  "NEXTUP.AutoOpen": "Auto Open Character Sheets",
+  "NEXTUP.AutoOpenHint": "Enable opening of character sheets",
+
+  "NEXTUP.SheetPosition": "Sheet Position",
+  "NEXTUP.SheetPositionHint": "Position of opened character sheet",
+  "NEXTUP.SHEET.Center": "Center",
+  "NEXTUP.SHEET.TopLeft": "Top Left",
+  "NEXTUP.SHEET.TopRight": "Top Right",
+  "NEXTUP.SHEET.BottomLeft": "Bottom Left",
+  "NEXTUP.SHEET.BottomRight": "Bottom Right",
+
+  "NEXTUP.OpenActorType": "Open Sheets: Actor Type Filter",
+  "NEXTUP.OpenActorTypeHint": "Which actor types should be automatically opened",
+  "NEXTUP.OPENACTORTYPE.All": "All",
+  "NEXTUP.OPENACTORTYPE.Unlinked": "Only Unlinked",
+  "NEXTUP.OPENACTORTYPE.NonOwned": "All Non-Owned",
+
+  "NEXTUP.CloseActorType": "Close Sheets: Actor Type Filter",
+  "NEXTUP.CloseActorTypeHint": "Which actor types should be automatically closed",
+  "NEXTUP.CLOSEACTORTYPE.Unlinked": "Unlinked Only",
+  "NEXTUP.CLOSEACTORTYPE.Linked": "Linked Only",
+  "NEXTUP.CLOSEACTORTYPE.All": "All",
+
+  "NEXTUP.CloseCombatantFilter": "Close Sheets: Combatant Filter",
+  "NEXTUP.CloseCombatantFilterHint": "Which combatants sheets should be automatically closed",
+  "NEXTUP.CLOSECOMBATANTFILTER.None": "None",
+  "NEXTUP.CLOSECOMBATANTFILTER.Previous": "Previous Combatant",
+  "NEXTUP.CLOSECOMBATANTFILTER.All": "All",
+
+  "NEXTUP.CloseCombatEnd": "Close Sheets: Combat End",
+  "NEXTUP.CloseCombatEndHint": "Close all actor sheets on combat end",
+
+  "NEXTUP.PopoutActor": "Popout Actor Sheets",
+  "NEXTUP.PopoutActorHint": "Pops out the actor sheet using the `Popout` module",
+
+  "NEXTUP.PanningClients": "Enable Panning For Individual Clients",
+  "NEXTUP.PanningClientsHint": "Enables clients to pan to tokens they have line of sight too. Requires clients to enable on their side (this includes the GM client)",
+
+  "NEXTUP.PanNext": "Pan To Next Combatant",
+  "NEXTUP.RemovePin": "Remove Pin Icon From Character Sheets",
+  "NEXTUP.AddMarker": "Add turn marker",
+  "NEXTUP.MarkerIcon": "Turn marker icon",
+
+  "NEXTUP.AnimationSpeed": "Animation speed for turn marker",
+  "NEXTUP.AnimationSpeedHint": "Seconds per full rotation, 0 is no rotation",
+
+  "NEXTUP.MarkerRatio": "Turn Marker Ratio",
+  "NEXTUP.MarkerRatioHint": "How many squares/hexes does the marker extend past the tokens border",
+
+  "NEXTUP.RenderIcon": "Render Icon Above Token",
+  "NEXTUP.RenderIconHint": "Render the turn marker icon above the token image",
+
+  "NEXTUP.StarTurnMarker": "Start-Turn Marker",
+  "NEXTUP.StarTurnMarkerHint": "Adds an icon indicate a tokens start position",
+  "NEXTUP.STARTTURNMARKER.None": "None",
+  "NEXTUP.STARTTURNMARKER.Shadow": "Shadow",
+  "NEXTUP.STARTTURNMARKER.Icon": "Icon",
+    
+  "NEXTUP.StarTurnIcon": "Start-Turn Marker Icon",
+  "NEXTUP.StartRatio": "Start Marker Ratio",
+  "NEXTUP.StartRatioHint": "Ratio compared to token height/width for icon type marker",
+
+  "NEXTUP.AutoControl": "Auto Control Next Token",
+  "NEXTUP.AUTOCONTROL.None": "None",
+  "NEXTUP.AUTOCONTROL.Npcs": "NPCs Only",
+  "NEXTUP.AUTOCONTROL.Pcs": "PCs only",
+  "NEXTUP.AUTOCONTROL.All": "All",
+
+  "NEXTUP.AutoClear": "Auto Clear User Targets",
+  "NEXTUP.StartAudio": "Turn Start Audio Cue",
+  "NEXTUP.CuePath": "Audio Cue Path",
+  "NEXTUP.CueVolume": "Audio Cue Volume"
+}
