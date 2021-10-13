@@ -225,6 +225,7 @@ Hooks.on('init', () => {
         onChange: debouncedReload,
     });
     libWrapper.register('Next-Up', 'TokenLayer.prototype.tearDown', newTearDown, 'WRAPPER')
+    libWrapper.register('Next-Up', 'Token.prototype.draw', newRefresh, 'WRAPPER')
 })
 
 function newTearDown(wrapped, ...args) {
@@ -267,13 +268,15 @@ Hooks.once('ready', () => {
 
     Hooks.on("preUpdateToken", (token, update) => {
         if ("height" in update || "width" in update || "img" in update) {
-            if(!token.inCombat) return;
-            let markerToken = token.object?.children.find(i => i.NUMaker)
+            if (!token.inCombat) return;
             TweenMax.killTweensOf(token.object?.children);
-            Hooks.once("updateToken", async (token, update) => {
-                await NextUP.createTurnMarker(token.id, canvas.grid);
-                if (markerToken.NUMaker) NextUP.AddTurnMaker(token.object, canvas.grid)
-            })
+        }
+    })
+    Hooks.on("updateToken", async (token, update) => {
+        if ("height" in update || "width" in update || "img" in update) {
+            await NextUP.createTurnMarker(token.id, canvas.grid);
+            let combatant = game.combat.current.tokenId === token.id
+            if (combatant) NextUP.AddTurnMaker(token.object, canvas.grid)
         }
     })
 
@@ -292,9 +295,9 @@ Hooks.on("canvasReady", async () => {
 })
 
 Hooks.on("updateCombatant", (combatant) => {
-    if(game.system.id !== "swade") return
+    if (game.system.id !== "swade") return
     let debouncedUpdate = debounce(NextUP.handleCombatUpdate, 50)
-    debouncedUpdate(combatant.parent, {turn: 1, round: 2})
+    debouncedUpdate(combatant.parent, { turn: 1, round: 2 })
 })
 
 
@@ -330,9 +333,9 @@ class NextUP {
         const nextToken = canvas.tokens.get(combat.current.tokenId)
         const previousToken = canvas.tokens.get(combat.previous.tokenId)
         if (game.settings.get("Next-Up", "markerEnable")) {
-            if(game.system.id==="swade"){
+            if (game.system.id === "swade") {
                 let combatTokens = canvas.tokens.placeables.filter(i => i.inCombat)
-                for(let t of combatTokens){
+                for (let t of combatTokens) {
                     NextUP.clearMarker(t.id)
                 }
             }
