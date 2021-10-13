@@ -5,8 +5,8 @@ import { libWrapper } from './shim.js';
 Hooks.on('init', () => {
 
     game.settings.register("Next-Up", "combatFocusEnable", {
-        name: 'Auto Open Character Sheets',
-        hint: 'Enable opening of character sheets',
+        name: game.i18n.localize('NEXTUP.AutoOpen'),
+        hint: game.i18n.localize('NEXTUP.AutoOpenHint'),
         scope: 'world',
         type: Boolean,
         default: true,
@@ -14,62 +14,62 @@ Hooks.on('init', () => {
     });
 
     game.settings.register("Next-Up", "combatFocusPostion", {
-        name: 'Sheet Position',
-        hint: 'Position of opened character sheet',
+        name: game.i18n.localize('NEXTUP.SheetPosition'),
+        hint: game.i18n.localize('NEXTUP.SheetPositionHint'),
         scope: 'world',
         type: String,
         choices: {
-            "0": "Center",
-            "1": "Top Left",
-            "2": "Top Right",
-            "3": "Bottom Left",
-            "4": "Bottom Right",
+            "0": game.i18n.localize('NEXTUP.SHEET.Center'),
+            "1": game.i18n.localize('NEXTUP.SHEET.TopLeft'),
+            "2": game.i18n.localize('NEXTUP.SHEET.TopRight'),
+            "3": game.i18n.localize('NEXTUP.SHEET.BottomLeft'),
+            "4": game.i18n.localize('NEXTUP.SHEET.BottomRight'),
         },
         default: "0",
         config: true,
     });
     game.settings.register("Next-Up", "combatFocusType", {
-        name: 'Open Sheets: Actor Type Filter',
-        hint: 'Which actor types should be automatically opened',
+        name: game.i18n.localize('NEXTUP.OpenActorType'),
+        hint: game.i18n.localize('NEXTUP.OpenActorTypeHint'),
         scope: 'world',
         type: String,
         choices: {
-            "0": "All",
-            "1": "Only Unlinked",
-            "2": "All Non-Owned",
+            "0": game.i18n.localize('NEXTUP.OPENACTORTYPE.All'),
+            "1": game.i18n.localize('NEXTUP.OPENACTORTYPE.Unlinked'),
+            "2": game.i18n.localize('NEXTUP.OPENACTORTYPE.NonOwned'),
         },
         default: "0",
         config: true,
     });
     game.settings.register("Next-Up", "closetype", {
-        name: 'Close Sheets: Actor Type Filter',
-        hint: 'Which actor types should be automatically closed',
+        name: game.i18n.localize('NEXTUP.CloseActorType'),
+        hint: game.i18n.localize('NEXTUP.CloseActorTypeHint'),
         scope: 'world',
         type: String,
         choices: {
-            "0": "Unlinked Only",
-            "1": "Linked Only",
-            "2": "All",
+            "0": game.i18n.localize('NEXTUP.CLOSEACTORTYPE.Unlinked'),
+            "1": game.i18n.localize('NEXTUP.CLOSEACTORTYPE.Linked'),
+            "2": game.i18n.localize('NEXTUP.CLOSEACTORTYPE.All'),
         },
         default: "0",
         config: true,
     });
     game.settings.register("Next-Up", "closewhich", {
-        name: 'Close Sheets: Combatant Filter',
-        hint: 'Which combatants sheets should be automatically closed',
+        name: game.i18n.localize('NEXTUP.CloseCombatantFilter'),
+        hint: game.i18n.localize('NEXTUP.CloseCombatantFilterHint'),
         scope: 'world',
         type: String,
         choices: {
-            "0": "None",
-            "1": "Previous Combatant",
-            "2": "All",
+            "0": game.i18n.localize('NEXTUP.CLOSECOMBATANTFILTER.None'),
+            "1": game.i18n.localize('NEXTUP.CLOSECOMBATANTFILTER.Previous'),
+            "2": game.i18n.localize('NEXTUP.CLOSECOMBATANTFILTER.All'),
         },
         default: "0",
         config: true,
     });
     game.settings.register("Next-Up", "closeOnEnd", {
-        name: 'Close Sheets: Combat End',
-        hint: 'Close all actor sheets on combat end',
+        name: game.i18n.localize('NEXTUP.CloseCombatEnd'),
+        hint: game.i18n.localize('NEXTUP.CloseCombatEndHint'),
         scope: 'world',
         type: Boolean,
         default: false,
@@ -77,8 +77,8 @@ Hooks.on('init', () => {
     });
 
     game.settings.register("Next-Up", "popout", {
-        name: 'Popout Actor Sheets',
-        hint: "Pops out the actor sheet using the `Popout` module",
+        name: game.i18n.localize('NEXTUP.PopoutActor'),
+        hint: game.i18n.localize('NEXTUP.PopoutActorHint'),
         scope: 'world',
         type: Boolean,
         default: false,
@@ -88,29 +88,29 @@ Hooks.on('init', () => {
         }
     });
     game.settings.register("Next-Up", "playerPanEnable", {
-        name: 'Enable Panning For Individual Clients',
-        hint: "Enables clients to pan to tokens they have line of sight too. Requires clients to enable on their side (this includes the GM client)",
+        name: game.i18n.localize('NEXTUP.PanningClients'),
+        hint: game.i18n.localize('NEXTUP.PanningClientsHint'),
         scope: 'world',
         type: Boolean,
         default: false,
         config: true,
     });
     game.settings.register("Next-Up", "playerPan", {
-        name: 'Pan To Next Combatant',
+        name: game.i18n.localize('NEXTUP.PanNext'),
         scope: 'client',
         type: Boolean,
         default: false,
         config: true,
     });
     game.settings.register("Next-Up", "removePin", {
-        name: 'Remove Pin Icon From Character Sheets',
+        name: game.i18n.localize('NEXTUP.RemovePin'),
         scope: 'world',
         type: Boolean,
         default: false,
         config: true,
     });
     game.settings.register("Next-Up", "markerEnable", {
-        name: 'Add turn marker',
+        name: game.i18n.localize('NEXTUP.AddMarker'),
         scope: 'world',
         type: Boolean,
         default: true,
@@ -118,7 +118,7 @@ Hooks.on('init', () => {
     });
 
     game.settings.register("Next-Up", "markerType", {
-        name: 'Turn marker icon',
+        name: game.i18n.localize('NEXTUP.MarkerIcon'),
         scope: 'world',
         type: String,
         default: "modules/Next-Up/Markers/DoubleSquare.png",
@@ -127,44 +127,44 @@ Hooks.on('init', () => {
         onChange: debouncedReload,
     });
     game.settings.register("Next-Up", "animateSpeed", {
-        name: 'Animation speed for turn marker',
-        hint: "Seconds per full rotation, 0 is no rotation",
+        name: game.i18n.localize('NEXTUP.AnimationSpeed'),
+        hint: game.i18n.localize('NEXTUP.AnimationSpeedHint'),
         scope: 'world',
         type: Number,
         default: 3,
         config: true,
     });
     game.settings.register("Next-Up", "markerRatio", {
-        name: 'Turn Marker Ratio',
-        hint: "How many squares/hexes does the marker extend past the tokens border",
+        name: game.i18n.localize('NEXTUP.MarkerRatio'),
+        hint: game.i18n.localize('NEXTUP.MarkerRatioHint'),
         scope: 'world',
         type: Number,
         default: 0,
         config: true,
     });
     game.settings.register("Next-Up", "iconLevel", {
-        name: 'Render Icon Above Token',
-        hint: "Render the turn marker icon above the token image",
+        name: game.i18n.localize('NEXTUP.RenderIcon'),
+        hint: game.i18n.localize('NEXTUP.RenderIconHint'),
         scope: 'world',
         type: Boolean,
         default: false,
         config: true,
     });
     game.settings.register("Next-Up", "startMarker", {
-        name: 'Start-Turn Marker',
-        hint: "Adds an icon indicate a tokens start position",
+        name: game.i18n.localize('NEXTUP.StarTurnMarker'),
+        hint: game.i18n.localize('NEXTUP.StarTurnMarkerHint'),
         scope: 'world',
         type: String,
         choices: {
-            "0": "None",
-            "1": "Shadow",
-            "2": "Icon",
+            "0": game.i18n.localize('NEXTUP.STARTTURNMARKER.None'),
+            "1": game.i18n.localize('NEXTUP.STARTTURNMARKER.Shadow'),
+            "2": game.i18n.localize('NEXTUP.STARTTURNMARKER.Icon'),
         },
         default: false,
         config: true,
     });
     game.settings.register("Next-Up", "startMarkerImage", {
-        name: 'Start-Turn Marker Icon',
+        name: game.i18n.localize('NEXTUP.StarTurnIcon'),
         scope: 'world',
         type: String,
         default: "modules/Next-Up/Markers/start.png",
@@ -173,42 +173,42 @@ Hooks.on('init', () => {
         onChange: debouncedReload,
     });
     game.settings.register("Next-Up", "startMarkerRatio", {
-        name: 'Start Marker Ratio',
-        hint: "Ratio compared to token height/width for icon type marker",
+        name: game.i18n.localize('NEXTUP.StartRatio'),
+        hint: game.i18n.localize('NEXTUP.StartRatioHint'),
         scope: 'world',
         type: Number,
         default: 1,
         config: true,
     });
     game.settings.register("Next-Up", "controlOption", {
-        name: 'Auto Control Next Token',
+        name: game.i18n.localize('NEXTUP.AutoControl'),
         scope: 'client',
         type: String,
         choices: {
-            "none": "None",
-            "npc": "NPCs Only",
-            "pc": "PCs only",
-            "all": "All"
+            "none": game.i18n.localize('NEXTUP.AUTOCONTROL.None'),
+            "npc": game.i18n.localize('NEXTUP.AUTOCONTROL.Npcs'),
+            "pc": game.i18n.localize('NEXTUP.AUTOCONTROL.Pcs'),
+            "all": game.i18n.localize('NEXTUP.AUTOCONTROL.All')
         },
         default: "All",
         config: true,
     });
     game.settings.register("Next-Up", "clearTargets", {
-        name: 'Auto Clear User Targets',
+        name: game.i18n.localize('NEXTUP.AutoClear'),
         scope: 'client',
         type: Boolean,
         default: false,
         config: true,
     });
     game.settings.register("Next-Up", "audioCue", {
-        name: 'Turn Start Audio Cue',
+        name: game.i18n.localize('NEXTUP.StartAudio'),
         scope: 'world',
         type: Boolean,
         default: false,
         config: true
     });
     game.settings.register("Next-Up", "audioPath", {
-        name: 'Audio Cue Path',
+        name: game.i18n.localize('NEXTUP.CuePath'),
         scope: 'world',
         type: String,
         default: "",
@@ -217,7 +217,7 @@ Hooks.on('init', () => {
         onChange: debouncedReload,
     });
     game.settings.register("Next-Up", "audioVolume", {
-        name: 'Audio Cue Volume',
+        name: game.i18n.localize('NEXTUP.CueVolume'),
         scope: 'client',
         type: String,
         default: "0.5",
@@ -225,6 +225,7 @@ Hooks.on('init', () => {
         onChange: debouncedReload,
     });
     libWrapper.register('Next-Up', 'TokenLayer.prototype.tearDown', newTearDown, 'WRAPPER')
+    libWrapper.register('Next-Up', 'Token.prototype.draw', newRefresh, 'WRAPPER')
 })
 
 function newTearDown(wrapped, ...args) {
@@ -267,13 +268,15 @@ Hooks.once('ready', () => {
 
     Hooks.on("preUpdateToken", (token, update) => {
         if ("height" in update || "width" in update || "img" in update) {
-            if(!token.inCombat) return;
-            let markerToken = token.object?.children.find(i => i.NUMaker)
+            if (!token.inCombat) return;
             TweenMax.killTweensOf(token.object?.children);
-            Hooks.once("updateToken", async (token, update) => {
-                await NextUP.createTurnMarker(token.id, canvas.grid);
-                if (markerToken.NUMaker) NextUP.AddTurnMaker(token.object, canvas.grid)
-            })
+        }
+    })
+    Hooks.on("updateToken", async (token, update) => {
+        if ("height" in update || "width" in update || "img" in update) {
+            await NextUP.createTurnMarker(token.id, canvas.grid);
+            let combatant = game.combat.current.tokenId === token.id
+            if (combatant) NextUP.AddTurnMaker(token.object, canvas.grid)
         }
     })
 
@@ -292,9 +295,9 @@ Hooks.on("canvasReady", async () => {
 })
 
 Hooks.on("updateCombatant", (combatant) => {
-    if(game.system.id !== "swade") return
+    if (game.system.id !== "swade") return
     let debouncedUpdate = debounce(NextUP.handleCombatUpdate, 50)
-    debouncedUpdate(combatant.parent, {turn: 1, round: 2})
+    debouncedUpdate(combatant.parent, { turn: 1, round: 2 })
 })
 
 
@@ -330,9 +333,9 @@ class NextUP {
         const nextToken = canvas.tokens.get(combat.current.tokenId)
         const previousToken = canvas.tokens.get(combat.previous.tokenId)
         if (game.settings.get("Next-Up", "markerEnable")) {
-            if(game.system.id==="swade"){
+            if (game.system.id === "swade") {
                 let combatTokens = canvas.tokens.placeables.filter(i => i.inCombat)
-                for(let t of combatTokens){
+                for (let t of combatTokens) {
                     NextUP.clearMarker(t.id)
                 }
             }

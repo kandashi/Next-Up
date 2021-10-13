@@ -1,0 +1,77 @@
+{
+  "I18N.LANGUAGE": "Español",
+  "I18N.MAINTAINERS": "@Viriato139ac#0342",
+
+  "NEXTUP.AutoOpen": "Abrir personajes automáticamente",
+  "NEXTUP.AutoOpenHint": "Habilita el que se abran automáticamente las hojas de personaje",
+  "NEXTUP.SheetPosition": "Posición de la hoja",
+  "NEXTUP.SheetPositionHint": "Posición de la hoja al abrirla",
+
+  "NEXTUP.SHEET.Center": "Centrada",
+  "NEXTUP.SHEET.TopLeft": "Arriba izquierda",
+  "NEXTUP.SHEET.TopRight": "Arriba derecha",
+  "NEXTUP.SHEET.BottomLeft": "Abajo izquierda",
+  "NEXTUP.SHEET.BottomRight": "Abajo derecha",
+
+  "NEXTUP.OpenActorType": "Abrir hojas: Filtro por tipo de actor",
+  "NEXTUP.OpenActorTypeHint": "Qué tipos de actor deben ser abiertas automáticamente",
+  "NEXTUP.OPENACTORTYPE.All": "Todos",
+  "NEXTUP.OPENACTORTYPE.Unlinked": "Solo los no vinculados",
+  "NEXTUP.OPENACTORTYPE.NonOwned": "Todos las que no tienen propietario",
+
+  "NEXTUP.CloseActorType": "Cerrar hojas: Filtro por tipo de actor",
+  "NEXTUP.CloseActorTypeHint": "Qué tipos de actor deben ser cerrados automáticamente",
+  "NEXTUP.CLOSEACTORTYPE.Unlinked": "Solo los no vinculados",
+  "NEXTUP.CLOSEACTORTYPE.Linked": "Solo los vinculados",
+  "NEXTUP.CLOSEACTORTYPE.All": "Todos",
+
+  "NEXTUP.CloseCombatantFilter": "Cerrar hojas: Filtro de contendiente",
+  "NEXTUP.CloseCombatantFilterHint": "Las hojas de qué contendientes deben ser cerrados automáticamente",
+  "NEXTUP.CLOSECOMBATANTFILTER.None": "Ninguno",
+  "NEXTUP.CLOSECOMBATANTFILTER.Previous": "Contendiente anterior",
+  "NEXTUP.CLOSECOMBATANTFILTER.All": "Todos",
+
+  "NEXTUP.CloseCombatEnd": "Cerrar hojas: Al finalizar el combate",
+  "NEXTUP.CloseCombatEndHint": "Cerrar todas las hojas de actores al finalizar el combate",
+
+  "NEXTUP.PopoutActor": "Hojas en nueva ventana",
+  "NEXTUP.PopoutActorHint": "Abrir hojas de actor en una nueva ventana usando el módulo `Popout`",
+
+  "NEXTUP.PanningClients": "Habilitar centrado para los clientes",
+  "NEXTUP.PanningClientsHint": "Activa el que los clientes se centren en los iconos para los que tienen línea de visión. Se necesita que los clientes también lo habiliten (además del GM)",
+
+  "NEXTUP.PanNext": "Centrar en el próximo contendiente",
+  "NEXTUP.RemovePin": "Quitar el icono de chincheta de las hojas de personaje",
+  "NEXTUP.AddMarker": "Añadir marcador de turno",
+  "NEXTUP.MarkerIcon": "Imagen del marcador de turno",
+
+  "NEXTUP.AnimationSpeed": "Velocidad de animación del marcador de turno",
+  "NEXTUP.AnimationSpeedHint": "Segundos que tarda en dar una vuelta completa, establecer a 0 para que no haya rotación",
+
+  "NEXTUP.MarkerRatio": "Proporción de marcador de turno",
+  "NEXTUP.MarkerRatioHint": "Cuántos cuadrados/hexágonos se extenderá el marcador más allá del borde de los iconos",
+
+  "NEXTUP.RenderIcon": "Mostrar la imagen sobre el icono",
+  "NEXTUP.RenderIconHint": "Muestra la imagen del marcador de turno sobre el icono",
+
+  "NEXTUP.StarTurnMarker": "Marcador de inicio de turno",
+  "NEXTUP.StarTurnMarkerHint": "Añade una imagen que marca la posición de inicio del icono",
+  "NEXTUP.STARTTURNMARKER.None": "Ninguno",
+  "NEXTUP.STARTTURNMARKER.Shadow": "Sombra",
+  "NEXTUP.STARTTURNMARKER.Icon": "Imagen",
+  
+  "NEXTUP.StarTurnIcon": "Imagen de marcador de inicio de turno",
+  "NEXTUP.StartRatio": "Proporción de marcador de inicio",
+  "NEXTUP.StartRatioHint": "Proporción en comparación con el ancho/alto del icono para los marcadores de tipo icono",
+
+  "NEXTUP.AutoControl": "Controlar icono siguiente",
+  "NEXTUP.AUTOCONTROL.None": "Ninguno",
+  "NEXTUP.AUTOCONTROL.Npcs": "Solo PNJs",
+  "NEXTUP.AUTOCONTROL.Pcs": "Solo PJs",
+  "NEXTUP.AUTOCONTROL.All": "Todos",
+
+  "NEXTUP.AutoClear": "Limpiar objetivos de los usuarios",
+  "NEXTUP.StartAudio": "Señal de audio de inicio de turno",
+  "NEXTUP.CuePath": "Ruta señal de audio",
+  "NEXTUP.CueVolume": "Volumen de señal de audio"
+}
