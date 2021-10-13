@@ -27,6 +27,18 @@
       "loop": true
     }
   ],
+  "languages": [
+    {
+      "lang": "en",
+      "name": "English",
+      "path": "languages/en.json"
+    },
+    {
+      "lang": "es",
+      "name": "Español",
+      "path": "languages/es.json"
+    }
+  ],
     "url": "https://github.com/kandashi/Next-Up",
     "manifest": "https://raw.githubusercontent.com/kandashi/Next-Up/main/module.json",
     "download": "https://github.com/kandashi/Next-Up/archive/main.zip",
