@@ -19,3 +19,7 @@
 ## 0.1.10
 
 - Fixed issue with swapping token images and other clients.
+
+## 0.1.13
+
+- Update to v9 compatibility

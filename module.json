@@ -43,7 +43,7 @@
     "manifest": "https://raw.githubusercontent.com/kandashi/Next-Up/main/module.json",
     "download": "https://github.com/kandashi/Next-Up/archive/main.zip",
     "minimumCoreVersion": "0.8.5",
-    "compatibleCoreVersion": "0.8.9",
+    "compatibleCoreVersion": "9.2",
     "allowBugReporter": true,
     "bugs": "https://github.com/kandashi/Next-Up/issues"
 }
