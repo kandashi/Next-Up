@@ -7,16 +7,16 @@ Hooks.on('init', () => {
     game.settings.register("Next-Up", "combatFocusEnable", {
         name: game.i18n.localize('NEXTUP.AutoOpen'),
         hint: game.i18n.localize('NEXTUP.AutoOpenHint'),
-        scope: 'world',
+        scope: 'client',
         type: Boolean,
-        default: true,
+        default: false,
         config: true,
     });
 
     game.settings.register("Next-Up", "combatFocusPostion", {
         name: game.i18n.localize('NEXTUP.SheetPosition'),
         hint: game.i18n.localize('NEXTUP.SheetPositionHint'),
-        scope: 'world',
+        scope: 'client',
         type: String,
         choices: {
             "0": game.i18n.localize('NEXTUP.SHEET.Center'),
@@ -31,7 +31,7 @@ Hooks.on('init', () => {
     game.settings.register("Next-Up", "combatFocusType", {
         name: game.i18n.localize('NEXTUP.OpenActorType'),
         hint: game.i18n.localize('NEXTUP.OpenActorTypeHint'),
-        scope: 'world',
+        scope: 'client',
         type: String,
         choices: {
             "0": game.i18n.localize('NEXTUP.OPENACTORTYPE.All'),
@@ -44,33 +44,33 @@ Hooks.on('init', () => {
     game.settings.register("Next-Up", "closetype", {
         name: game.i18n.localize('NEXTUP.CloseActorType'),
         hint: game.i18n.localize('NEXTUP.CloseActorTypeHint'),
-        scope: 'world',
+        scope: 'client',
         type: String,
         choices: {
             "0": game.i18n.localize('NEXTUP.CLOSEACTORTYPE.Unlinked'),
             "1": game.i18n.localize('NEXTUP.CLOSEACTORTYPE.Linked'),
             "2": game.i18n.localize('NEXTUP.CLOSEACTORTYPE.All'),
         },
-        default: "0",
+        default: "2",
         config: true,
     });
     game.settings.register("Next-Up", "closewhich", {
         name: game.i18n.localize('NEXTUP.CloseCombatantFilter'),
         hint: game.i18n.localize('NEXTUP.CloseCombatantFilterHint'),
-        scope: 'world',
+        scope: 'client',
         type: String,
         choices: {
             "0": game.i18n.localize('NEXTUP.CLOSECOMBATANTFILTER.None'),
             "1": game.i18n.localize('NEXTUP.CLOSECOMBATANTFILTER.Previous'),
             "2": game.i18n.localize('NEXTUP.CLOSECOMBATANTFILTER.All'),
         },
-        default: "0",
+        default: "2",
         config: true,
     });
     game.settings.register("Next-Up", "closeOnEnd", {
         name: game.i18n.localize('NEXTUP.CloseCombatEnd'),
         hint: game.i18n.localize('NEXTUP.CloseCombatEndHint'),
-        scope: 'world',
+        scope: 'client',
         type: Boolean,
         default: false,
         config: true,
@@ -79,7 +79,7 @@ Hooks.on('init', () => {
     game.settings.register("Next-Up", "popout", {
         name: game.i18n.localize('NEXTUP.PopoutActor'),
         hint: game.i18n.localize('NEXTUP.PopoutActorHint'),
-        scope: 'world',
+        scope: 'client',
         type: Boolean,
         default: false,
         config: true,
@@ -384,13 +384,10 @@ class NextUP {
                 break;
 
         }
-        if (game.user.isGM) {
-
-
-            const currentWindows = Object.values(ui.windows);
-
-            let currentSheet = currentWindows.filter(i => i.token?.id === currentToken.id);
-            let sheet;
+        const currentWindows = Object.values(ui.windows);
+        let currentSheet = currentWindows.filter(i => i.token?.id === currentToken.id);
+        let sheet;
+        if (game.user.isGM || currentToken.isOwner) {
             if (combatFocusEnable) {
                 if (currentSheet.length === 0)
                     Hooks.once("renderActorSheet", async (sheet) => {
@@ -429,6 +426,9 @@ class NextUP {
             }
             else sheet = currentSheet[0];
 
+
+        }
+        if (game.user.isGM || previousToken.isOwner) {
             switch (closeWhich) {
                 case "0": break;
                 case "1":
