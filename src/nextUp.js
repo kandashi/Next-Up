@@ -250,8 +250,8 @@ Hooks.once('ready', () => {
         NextUP.createTurnMarker(combatant.data.tokenId)
     })
     Hooks.on("preDeleteToken", (token) => {
-        if (token.actorId === "") return;
-        NextUP.clearMarker(token._id)
+        if (token.data.actorId === "") return;
+        NextUP.clearMarker(token.data._id)
     })
 
     Hooks.on("deleteCombat", (combat) => {
@@ -261,7 +261,7 @@ Hooks.once('ready', () => {
     })
 
     Hooks.on("deleteCombatant", (combatant) => {
-        NextUP.clearMarker(combatant.token.id)
+        NextUP.clearMarker(combatant.data.tokenId)
     })
 
     Hooks.on("updateCombat", NextUP.handleCombatUpdate)
