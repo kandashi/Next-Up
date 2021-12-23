@@ -64,7 +64,7 @@ Hooks.on('init', () => {
             "1": game.i18n.localize('NEXTUP.CLOSECOMBATANTFILTER.Previous'),
             "2": game.i18n.localize('NEXTUP.CLOSECOMBATANTFILTER.All'),
         },
-        default: "2",
+        default: "0",
         config: true,
     });
     game.settings.register("Next-Up", "closeOnEnd", {
