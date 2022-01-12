@@ -1,0 +1,75 @@
+{
+    "NEXTUP.AutoOpen": "キャラクターシートを自動で開く",
+    "NEXTUP.AutoOpenHint": "ターン開始時にキャラクターシートを開きます。",
+  
+    "NEXTUP.SheetPosition": "シートの位置",
+    "NEXTUP.SheetPositionHint": "キャラクターシートを開く位置を指定します。",
+    "NEXTUP.SHEET.Center": "中央",
+    "NEXTUP.SHEET.TopLeft": "左上",
+    "NEXTUP.SHEET.TopRight": "右上",
+    "NEXTUP.SHEET.BottomLeft": "左下",
+    "NEXTUP.SHEET.BottomRight": "右下",
+  
+    "NEXTUP.OpenActorType": "シートを開く：アクタータイプ別",
+    "NEXTUP.OpenActorTypeHint": "自動でキャラクターシートを開くアクタータイプを指定します。",
+    "NEXTUP.OPENACTORTYPE.All": "すべて",
+    "NEXTUP.OPENACTORTYPE.Unlinked": "リンクのないアクターのみ",
+    "NEXTUP.OPENACTORTYPE.NonOwned": "所有者のないすべてのアクター",
+  
+    "NEXTUP.CloseActorType": "シートを閉じる：アクタータイプ別",
+    "NEXTUP.CloseActorTypeHint": "自動でキャラクターシートを閉じるアクタータイプを指定します。",
+    "NEXTUP.CLOSEACTORTYPE.Unlinked": "リンクのないアクターのみ",
+    "NEXTUP.CLOSEACTORTYPE.Linked": "リンクされたアクターのみ",
+    "NEXTUP.CLOSEACTORTYPE.All": "すべて",
+  
+    "NEXTUP.CloseCombatantFilter": "シートを閉じる：戦闘参加者別",
+    "NEXTUP.CloseCombatantFilterHint": "自動でキャラクターシートを閉じる戦闘参加者を指定します。",
+    "NEXTUP.CLOSECOMBATANTFILTER.None": "なし",
+    "NEXTUP.CLOSECOMBATANTFILTER.Previous": "一つ前の戦闘参加者",
+    "NEXTUP.CLOSECOMBATANTFILTER.All": "すべて",
+  
+    "NEXTUP.CloseCombatEnd": "シートを閉じる：戦闘終了時",
+    "NEXTUP.CloseCombatEndHint": "戦闘終了時にすべてのキャラクターシートを閉じます。",
+  
+    "NEXTUP.PopoutActor": "シートをPopoutする",
+    "NEXTUP.PopoutActorHint": "「Popout」モジュールを使用し、キャラクターシートを別ウィンドウで開きます。",
+  
+    "NEXTUP.PanningClients": "クライアントの画面遷移（パン）を有効にする",
+    "NEXTUP.PanningClientsHint": "キャラクターの視界内にあるコマへのパンを可能にします。クライアントごとに設定する必要があります（GM含む）。",
+  
+    "NEXTUP.PanNext": "ターンを得た戦闘参加者に画面遷移（パン）する",
+    "NEXTUP.RemovePin": "キャラクターシートにピン止めアイコンを表示しない",
+    "NEXTUP.AddMarker": "ターンマーカーを追加する",
+    "NEXTUP.MarkerIcon": "ターンマーカー画像",
+  
+    "NEXTUP.AnimationSpeed": "ターンマーカーのアニメーション速度",
+    "NEXTUP.AnimationSpeedHint": "1回転にかかる時間を秒で指定します。“0”だと回転しません。",
+  
+    "NEXTUP.MarkerRatio": "ターンマーカーの表示比率",
+    "NEXTUP.MarkerRatioHint": "コマの縁から何マス（ヘクス）先までマーカーが届くかを指定します。",
+  
+    "NEXTUP.RenderIcon": "コマの上にマーカーを表示する",
+    "NEXTUP.RenderIconHint": "ターンマーカー画像をコマ画像の上にレンダリングします。",
+  
+    "NEXTUP.StarTurnMarker": "ターン開始位置マーカー",
+    "NEXTUP.StarTurnMarkerHint": "ターン開始時のコマの位置に示す画像を表示します。",
+    "NEXTUP.STARTTURNMARKER.None": "なし",
+    "NEXTUP.STARTTURNMARKER.Shadow": "残像",
+    "NEXTUP.STARTTURNMARKER.Icon": "画像",
+      
+    "NEXTUP.StarTurnIcon": "ターン開始位置マーカーの画像",
+    "NEXTUP.StartRatio": "ターン開始位置マーカーの表示比率",
+    "NEXTUP.StartRatioHint": "マーカー画像のサイズ（高さ/幅）をコマのサイズとの比率で指定します。",
+  
+    "NEXTUP.AutoControl": "ターンを得たコマを自動で選択する",
+    "NEXTUP.AUTOCONTROL.None": "なし",
+    "NEXTUP.AUTOCONTROL.Npcs": "NPCのみ",
+    "NEXTUP.AUTOCONTROL.Pcs": "PCのみ",
+    "NEXTUP.AUTOCONTROL.All": "すべて",
+  
+    "NEXTUP.AutoClear": "目標選択を自動で外す",
+    "NEXTUP.StartAudio": "ターン開始時に音で通知する",
+    "NEXTUP.CuePath": "ターン開始音のファイルパス",
+    "NEXTUP.CueVolume": "ターン開始音の音量"
+  }
+  
