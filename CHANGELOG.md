@@ -1,5 +1,9 @@
 # Next Up Changelog
 
+## 10.0.0
+
+- Updated for Foundry v10 and DND%E 2.1
+
 ## 0.1.07
 
 - Fixes for "visible" errors or markers not appearing.
