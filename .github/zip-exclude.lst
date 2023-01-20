@@ -1,0 +1,7 @@
+./dist/*
+./out/*
+./jsdoc/*
+./node_modules/*
+*.git*
+*.vscode*
+./scratch/*
