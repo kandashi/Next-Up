@@ -250,8 +250,8 @@ Hooks.once('ready', () => {
         NextUP.createTurnMarker(combatant.tokenId)
     })
     Hooks.on("preDeleteToken", (token) => {
-        if (token.document.actorId === "") return;
-        NextUP.clearMarker(token.document._id)
+        if (token.actorId === "") return;
+        NextUP.clearMarker(token._id)
     })
 
     Hooks.on("deleteCombat", (combat) => {
@@ -339,7 +339,9 @@ class NextUP {
                     NextUP.clearMarker(t.id)
                 }
             }
-            NextUP.clearMarker(previousToken.id)
+            if(previousToken) {
+                NextUP.clearMarker(previousToken.id)
+            }
             NextUP.AddTurnMaker(nextToken, canvas.grid)
         }
         if (game.settings.get("Next-Up", "startMarker")) {
@@ -413,7 +415,7 @@ class NextUP {
                     case "0": sheet = await currentToken.actor?.sheet.render(true);
                         break;
                     case "1": {
-                        if (currenttoken.document.actorLink === false) sheet = await currentToken.actor?.sheet.render(true);
+                        if (currentToken.document.actorLink === false) sheet = await currentToken.actor?.sheet.render(true);
                         else sheet = false;
                     }
                         break;
@@ -432,8 +434,8 @@ class NextUP {
             switch (closeWhich) {
                 case "0": break;
                 case "1":
-                    let window = currentWindows.find(i => i.actor?.token?.id === previousToken.id) || currentWindows.find(i => i.actor?.id === previousToken.actor?.id);
-                    if (window && window.actor) this.CloseSheet(previousToken.actor?.token.actorLink, window)
+                    let window = currentWindows.find(i => i.actor?.token?.id === previousToken?.id) || currentWindows.find(i => i.actor?.id === previousToken?.actor?.id);
+                    if (window && window.actor) this.CloseSheet(previousToken?.document.actorLink, window)
                     break;
                 case "2": for (let window of currentWindows) {
                     switch (currentToken.actor?.token.actorLink) {
