@@ -247,11 +247,11 @@ function newRefresh(wrapped, ...args) {
 Hooks.once('ready', () => {
 
     Hooks.on("createCombatant", (combatant) => {
-        NextUP.createTurnMarker(combatant.data.tokenId)
+        NextUP.createTurnMarker(combatant.tokenId)
     })
     Hooks.on("preDeleteToken", (token) => {
-        if (token.data.actorId === "") return;
-        NextUP.clearMarker(token.data._id)
+        if (token.document.actorId === "") return;
+        NextUP.clearMarker(token.document._id)
     })
 
     Hooks.on("deleteCombat", (combat) => {
@@ -261,7 +261,7 @@ Hooks.once('ready', () => {
     })
 
     Hooks.on("deleteCombatant", (combatant) => {
-        NextUP.clearMarker(combatant.data.tokenId)
+        NextUP.clearMarker(combatant.tokenId)
     })
 
     Hooks.on("updateCombat", NextUP.handleCombatUpdate)
@@ -287,7 +287,7 @@ Hooks.on("canvasReady", async () => {
     await NextUpChangeImage();
     if (!game.settings.get("Next-Up", "markerEnable")) return;
     let tokens = canvas.tokens.placeables.filter(t => t.inCombat)
-    for (let t of tokens) { await NextUP.createTurnMarker(t.data._id) }
+    for (let t of tokens) { await NextUP.createTurnMarker(t.document._id) }
     let token = canvas.tokens.get(game.combat?.current?.tokenId)
     if (token) {
         NextUP.AddTurnMaker(token, canvas.grid)
@@ -327,7 +327,7 @@ class NextUP {
         if (canvas.scene === null) return;
         //if (combat.round === 0 || changed?.round === 0) return;
         if (!("turn" in changed) && changed.round !== 1) return;
-        if (game.combats.get(combat.id).data.combatants.length == 0) return;
+        if (game.combats.get(combat.id).combatants.length == 0) return;
         const playerPanEnable = game.settings.get('Next-Up', 'playerPanEnable');
         const playerPan = game.settings.get('Next-Up', 'playerPan');
         const nextToken = canvas.tokens.get(combat.current.tokenId)
@@ -413,7 +413,7 @@ class NextUP {
                     case "0": sheet = await currentToken.actor?.sheet.render(true);
                         break;
                     case "1": {
-                        if (currentToken.data.actorLink === false) sheet = await currentToken.actor?.sheet.render(true);
+                        if (currenttoken.document.actorLink === false) sheet = await currentToken.actor?.sheet.render(true);
                         else sheet = false;
                     }
                         break;
@@ -433,14 +433,14 @@ class NextUP {
                 case "0": break;
                 case "1":
                     let window = currentWindows.find(i => i.actor?.token?.id === previousToken.id) || currentWindows.find(i => i.actor?.id === previousToken.actor?.id);
-                    if (window && window.actor) this.CloseSheet(previousToken.actor?.data.token.actorLink, window)
+                    if (window && window.actor) this.CloseSheet(previousToken.actor?.token.actorLink, window)
                     break;
                 case "2": for (let window of currentWindows) {
-                    switch (currentToken.actor?.data.token.actorLink) {
-                        case true: if (window.actor && window.actor.id !== currentToken.actor?.id) NextUP.CloseSheet(window.actor.data.token.actorLink, window)
+                    switch (currentToken.actor?.token.actorLink) {
+                        case true: if (window.actor && window.actor.id !== currentToken.actor?.id) NextUP.CloseSheet(window.actor.token.actorLink, window)
                             break;
                         case false:
-                            if (window.actor) this.CloseSheet(window.actor.data.token.actorLink, window)
+                            if (window.actor) this.CloseSheet(window.actor.token.actorLink, window)
                             break;
                     }
                 }
@@ -468,7 +468,7 @@ class NextUP {
     }
 
     static async clearShadows() {
-        const shadows = canvas.background.children.filter(i => i.isShadow)
+        const shadows = canvas.stage.children.filter(i => i.isShadow)
         for (let shadow of shadows) {
             await shadow.destroy()
         }
@@ -513,12 +513,12 @@ class NextUP {
         // Add non-existent property
         markerTexture.isNUMarker = true
         let sprite = new PIXI.Sprite(markerTexture)
-        let scale = token.data.height
+        let scale = token.document.height
         sprite.transform.scale.set(scale)
         sprite.anchor.set(0.5)
         let markerToken = token.addChild(sprite)
-        markerToken.position.x = canvas.grid.w * token.data.width / 2;
-        markerToken.position.y = canvas.grid.h * token.data.height / 2;
+        markerToken.position.x = canvas.grid.w * token.document.width / 2;
+        markerToken.position.y = canvas.grid.h * token.document.height / 2;
         markerToken.visible = false
         token.sortableChildren = true
         markerToken.NUMaker = true
@@ -551,37 +551,37 @@ class NextUP {
             case "0":
                 break;
             case "1": {
-                if (token.data.hidden && !game.user.isGM) return;
-                let markerTexture = await loadTexture(token.data.img)
-                const textureSize = grid.size * token.data.height * token.data.scale
-                const offsetX = (textureSize - (canvas.grid.w * token.data.width)) / 2
-                const offsetY = (textureSize - (canvas.grid.h * token.data.height)) / 2
-                let sprite = new PIXI.Sprite(markerTexture)
-                sprite.height = textureSize
-                sprite.width = textureSize
-                let startMarker = canvas.background.addChild(sprite)
-                startMarker.position.x = token.data.x - offsetX
-                startMarker.position.y = token.data.y - offsetY
-                startMarker.isShadow = true
-                startMarker.tint = 9410203
-                startMarker.alpha = 0.7
+                if (token.document.hidden && !game.user.isGM) return;
+                let markerTexture = await loadTexture(token.document.texture.src)
+                const textureSize = grid.size * token.document.height * token.document.texture.scaleY;
+                const offsetX = (textureSize - (canvas.grid.w * token.document.width)) / 2;
+                const offsetY = (textureSize - (canvas.grid.h * token.document.height)) / 2;
+                let sprite = new PIXI.Sprite(markerTexture);
+                sprite.height = textureSize;
+                sprite.width = textureSize;
+                let startMarker = canvas.stage.addChild(sprite);
+                startMarker.position.x = token.document.x - offsetX;
+                startMarker.position.y = token.document.y - offsetY;
+                startMarker.isShadow = true;
+                startMarker.tint = 9410203;
+                startMarker.alpha = 0.7;
             }
                 break;
             case "2": {
-                if (token.data.hidden && !game.user.isGM) return;
+                if (token.document.hidden && !game.user.isGM) return;
                 let ratio = token.actor?.getFlag("Next-Up", "startMarkerRatio") || game.settings.get("Next-Up", "startMarkerRatio")
                 let NUStartImage = await game.settings.get("Next-Up", "startMarkerImage")
                 let startImage = token.actor?.getFlag("Next-Up", "startMarkerImage") || NUStartImage
                 let startMarkerTexture = await loadTexture(startImage)
-                const textureSize = grid.size * token.data.height * ratio
-                const offsetX = (textureSize - (canvas.grid.w * token.data.width)) / 2
-                const offsetY = (textureSize - (canvas.grid.h * token.data.height)) / 2
+                const textureSize = grid.size * token.document.height * ratio
+                const offsetX = (textureSize - (canvas.grid.w * token.document.width)) / 2
+                const offsetY = (textureSize - (canvas.grid.h * token.document.height)) / 2
                 let sprite = new PIXI.Sprite(startMarkerTexture)
                 sprite.height = textureSize
                 sprite.width = textureSize
-                let startMarker = canvas.background.addChild(sprite)
-                startMarker.position.x = token.data.x - offsetX
-                startMarker.position.y = token.data.y - offsetY
+                let startMarker = canvas.stage.addChild(sprite)
+                startMarker.position.x = token.document.x - offsetX
+                startMarker.position.y = token.document.y - offsetY
                 startMarker.isShadow = true
                 startMarker.alpha = 0.7
             }
