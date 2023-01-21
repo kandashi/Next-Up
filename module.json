@@ -2,7 +2,7 @@
   "id": "Next-Up",
   "title": "Next Up",
   "description": "Several Combat Enhancements, pan to combatant, open sheets and turn markers.",
-  "version": "This is auto replaced",
+  "version": "10.0.0",
   "manifestPlusVersion": "1.2.0",
   "authors": [
     {
@@ -50,9 +50,9 @@
     "verified": "10",
     "maximum": "10"
   },
-  "url": "This is auto replaced",
-  "manifest": "This is auto replaced",
-  "download": "This is auto replaced",
+  "url": "https://github.com/gregpola/Next-Up",
+  "manifest": "https://github.com/gregpola/Next-Up/releases/latest/download/module.json",
+  "download": "https://github.com/gregpola/Next-Up/releases/latest/download/module.zip",
   "changelog":, "https://raw.githubusercontent.com/gregpola/Next-Up/main/changelog.md",
   "readme": "https://raw.githubusercontent.com/gregpola/Next-Up/main/README.md",
   "bugs":, "https://github.com/gregpola/Next-Up/issues"
