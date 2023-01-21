@@ -13,7 +13,7 @@ jobs:
   # This workflow contains a single job called "build"
   build:
     # The type of runner that the job will run on
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
@@ -21,9 +21,7 @@ jobs:
       - uses: actions/checkout@v3
 
       #Substitute the Manifest and Download URLs in the module.json
-      - name: Substitute Manifest and Download Links For Versioned Ones
-        id: sub_manifest_link_version
-        uses: joshlrogers/variable-substitution@v1.1
+      - uses: microsoft/variable-substitution@v1 
         with:
           files: 'module.json'
         env:
