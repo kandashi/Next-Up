@@ -4,18 +4,16 @@ Have you even lost yourself in the mire of 8 actor sheets open at 1 time?
  Do you ever loose track of which mage has spell slots left?
 Do you ever run large combats and take 5 seconds each round to find the currently acting token?
 
-## Compatibility:
+### Compatibility:
+- Tested with FVTT v10 and the DND5E system 2.1+.
 
-    Tested with FVTT v10 and the DND5E system 2.1+.
+### Installation Instructions
 
-## Installation Instructions
+To install a module, follow these instructions:
 
-### To install a module, follow these instructions:
-
-    Start FVTT and browse to the Game Modules tab in the Configuration and Setup menu
-    Select the 'Install Module' button and enter the following URL: https://github.com/gregpola/Next-Up/releases/latest/download/module.json
-    Click Install and wait for installation to complete
-
+1. Start FVTT and browse to the Game Modules tab in the Configuration and Setup menu
+2. Select the 'Install Module' button and enter the following URL: https://github.com/gregpola/Next-Up/releases/latest/download/module.json
+3. Click Install and wait for installation to complete 
 
 ## Well Next Up is for you!
 
