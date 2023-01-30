@@ -1,5 +1,9 @@
 # Next Up Changelog
 
+## 10.0.4
+
+- More runtime fixes
+
 ## 10.0.3
 
 - More runtime fixes for errors in Foundry v10 and DND5E 2.1

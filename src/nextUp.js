@@ -537,11 +537,13 @@ class NextUP {
 
     static async AddTurnMaker(token, grid) {
         let markerToken = token.children.find(i => i.NUMaker)
-        markerToken.visible = true
-        const animationSpeed = game.settings.get("Next-Up", "animateSpeed")
+        if (markerToken) {
+            markerToken.visible = true
+            const animationSpeed = game.settings.get("Next-Up", "animateSpeed")
 
-        if (animationSpeed !== 0) {
-            TweenMax.to(markerToken, animationSpeed, { angle: 360, repeat: -1, ease: Linear.easeNone });
+            if (animationSpeed !== 0) {
+                TweenMax.to(markerToken, animationSpeed, {angle: 360, repeat: -1, ease: Linear.easeNone});
+            }
         }
 
         NextUP.DropStartMarker(token, grid)
