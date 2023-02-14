@@ -1,5 +1,9 @@
 # Next Up Changelog
 
+## 10.0.5
+
+- Fixes for not properly closing prior sheets when changing the active combatant
+
 ## 10.0.4
 
 - More runtime fixes

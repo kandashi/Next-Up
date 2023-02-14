@@ -389,6 +389,27 @@ class NextUP {
         const currentWindows = Object.values(ui.windows);
         let currentSheet = currentWindows.filter(i => i.token?.id === currentToken.id);
         let sheet;
+
+        // Close the prior sheet
+        if (game.user.isGM || previousToken.isOwner) {
+            switch (closeWhich) {
+                case "0":
+                    break;
+                case "1":
+                    let window = currentWindows.find(i => i.actor?.token?.id === previousToken?.id) || currentWindows.find(i => i.actor?.id === previousToken?.actor?.id);
+                    if (window && window.actor) this.CloseSheet(previousToken?.document.actorLink, window)
+                    break;
+                case "2":
+                {
+                    for (let window of currentWindows) {
+                        if (window === currentSheet)
+                            continue;
+                        await this.CloseSheet(window.actor?.token?.actorLink, window);
+                    }
+                }
+            }
+        }
+
         if (game.user.isGM || currentToken.isOwner) {
             if (combatFocusEnable) {
                 if (currentSheet.length === 0)
@@ -426,35 +447,17 @@ class NextUP {
                         break;
                 }
             }
-            else sheet = currentSheet[0];
-
-
-        }
-        if (game.user.isGM || previousToken.isOwner) {
-            switch (closeWhich) {
-                case "0": break;
-                case "1":
-                    let window = currentWindows.find(i => i.actor?.token?.id === previousToken?.id) || currentWindows.find(i => i.actor?.id === previousToken?.actor?.id);
-                    if (window && window.actor) this.CloseSheet(previousToken?.document.actorLink, window)
-                    break;
-                case "2": for (let window of currentWindows) {
-                    switch (currentToken.actor?.token.actorLink) {
-                        case true: if (window.actor && window.actor.id !== currentToken.actor?.id) NextUP.CloseSheet(window.actor.token.actorLink, window)
-                            break;
-                        case false:
-                            if (window.actor) this.CloseSheet(window.actor.token.actorLink, window)
-                            break;
-                    }
-                }
+            else {
+                sheet = currentSheet[0];
             }
         }
     }
 
-    static CloseSheet(link, sheet) {
+    static async CloseSheet(link, sheet) {
         const closeType = game.settings.get('Next-Up', 'closetype');
         if (sheet.pinned) return;
-        if (link && (closeType === "1" || closeType === "2")) sheet.close()
-        if (!link && (closeType === "0" || closeType === "2")) sheet.close()
+        if (link && (closeType === "1" || closeType === "2")) await sheet.close( {force: true} );
+        if (!link && (closeType === "0" || closeType === "2")) await sheet.close( {force: true} );
     }
 
     static clearMarker(tokenId) {
