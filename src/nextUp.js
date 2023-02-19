@@ -348,7 +348,7 @@ class NextUP {
             NextUP.clearShadows()
         }
         NextUP.cycleSheets(nextToken, previousToken)
-        if (playerPanEnable && playerPan && (nextToken.isVisible || game.user === firstGm)) {
+        if (playerPanEnable && playerPan && (nextToken.isVisible || game.user.isGM)) {
             canvas.animatePan({ x: nextToken.center.x, y: nextToken.center.y, duration: 250 });
         }
         if (game.settings.get("Next-Up", "clearTargets")) {
@@ -402,7 +402,7 @@ class NextUP {
                 case "2":
                 {
                     for (let window of currentWindows) {
-                        if (window === currentSheet)
+                        if ((window === currentSheet) || !window.actor)
                             continue;
                         await this.CloseSheet(window.actor?.token?.actorLink, window);
                     }
