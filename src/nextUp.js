@@ -339,23 +339,33 @@ class NextUP {
                     NextUP.clearMarker(t.id)
                 }
             }
-            if(previousToken) {
+
+            if (previousToken) {
                 NextUP.clearMarker(previousToken.id)
             }
-            NextUP.AddTurnMaker(nextToken, canvas.grid)
+
+            if (nextToken)
+                NextUP.AddTurnMaker(nextToken, canvas.grid)
         }
+
         if (game.settings.get("Next-Up", "startMarker")) {
             NextUP.clearShadows()
         }
-        NextUP.cycleSheets(nextToken, previousToken)
-        if (playerPanEnable && playerPan && (nextToken.isVisible || game.user.isGM)) {
-            canvas.animatePan({ x: nextToken.center.x, y: nextToken.center.y, duration: 250 });
+
+        if (nextToken) {
+            NextUP.cycleSheets(nextToken, previousToken)
+
+            if (playerPanEnable && playerPan && (nextToken.isVisible || game.user.isGM)) {
+                canvas.animatePan({ x: nextToken.center.x, y: nextToken.center.y, duration: 250 });
+            }
+
+            if (game.settings.get("Next-Up", "audioCue")) {
+                if (nextToken.actor?.id === game.user.character?.id) NextUP.audioCue()
+            }
         }
+
         if (game.settings.get("Next-Up", "clearTargets")) {
             game.user.updateTokenTargets()
-        }
-        if (game.settings.get("Next-Up", "audioCue")) {
-            if (nextToken.actor?.id === game.user.character?.id) NextUP.audioCue()
         }
     }
 
@@ -370,6 +380,8 @@ class NextUP {
     }
 
     static async cycleSheets(currentToken, previousToken) {
+        if (!currentToken) return;
+
         const combatFocusEnable = game.settings.get("Next-Up", "combatFocusEnable");
         const combatFocusPostion = game.settings.get('Next-Up', 'combatFocusPostion');
         const closeWhich = game.settings.get('Next-Up', 'closewhich');
