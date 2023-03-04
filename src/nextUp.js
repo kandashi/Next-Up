@@ -3,6 +3,7 @@ import { libWrapper } from './shim.js';
 
 
 Hooks.on('init', () => {
+    console.log('%c Next-Up | Initializing module', 'color: #222DDB');
 
     game.settings.register("Next-Up", "combatFocusEnable", {
         name: game.i18n.localize('NEXTUP.AutoOpen'),
@@ -274,9 +275,14 @@ Hooks.once('ready', () => {
     })
     Hooks.on("updateToken", async (token, update) => {
         if ("height" in update || "width" in update || "img" in update) {
+            NextUP.clearTurnMarker(token.id);
+            await NextUP.clearShadows();
             await NextUP.createTurnMarker(token.id, canvas.grid);
+
             let combatant = game.combat.current.tokenId === token.id
-            if (combatant) NextUP.AddTurnMaker(token.object, canvas.grid)
+            if (combatant) {
+                NextUP.AddTurnMaker(token.object, canvas.grid);
+            }
         }
     })
 
@@ -475,13 +481,30 @@ class NextUP {
     static clearMarker(tokenId) {
         const removeToken = canvas.tokens.get(tokenId)
         if (!removeToken) return;
-        const markers = removeToken.children.filter(i => i.NUMaker)
+        const markers = removeToken.children.filter(i => i.NUMaker);
         if (!markers) return;
         markers.forEach(m => {
-            TweenMax.killTweensOf(m)
-            m.visible = false
-            m.rotation = 0
+            TweenMax.killTweensOf(m);
+            m.visible = false;
+            m.rotation = 0;
         })
+    }
+
+    /**
+     * Deletes the turn marker form the token
+     * @param tokenId
+     */
+    static clearTurnMarker(tokenId) {
+        const removeToken = canvas.tokens.get(tokenId)
+        if (!removeToken) return;
+
+        for (var i = removeToken.children.length - 1; i >= 0; i--) {
+            let child = removeToken.children[i];
+            if (child.NUMaker) {
+                TweenMax.killTweensOf(child);
+                removeToken.children.splice(i, 1);
+            }
+        }
     }
 
     static async clearShadows() {
