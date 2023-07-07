@@ -5,7 +5,7 @@ Have you even lost yourself in the mire of 8 actor sheets open at 1 time?
 Do you ever run large combats and take 5 seconds each round to find the currently acting token?
 
 ### Compatibility:
-- Tested with FVTT v10 and the DND5E system 2.1+.
+- Tested with FVTT v11 and the DND5E system 2.2+.
 
 ### Installation Instructions
 
