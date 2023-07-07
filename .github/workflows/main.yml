@@ -51,10 +51,10 @@ jobs:
     - name: Create Release
       id: create_latest_release
       uses: ncipollo/release-action@v1
-      if: endsWith(github.ref, 'main')
+      if: endsWith(github.ref, 'v11')
       with:
         allowUpdates: true
-        name: Latest
+        name: v11-latest
         draft: false
         prerelease: false
         token: ${{ secrets.GITHUB_TOKEN }}
