@@ -1,5 +1,25 @@
 # Next Up Changelog
 
+## 10.0.5
+
+- Fixes for not properly closing prior sheets when changing the active combatant
+
+## 10.0.4
+
+- More runtime fixes
+
+## 10.0.3
+
+- More runtime fixes for errors in Foundry v10 and DND5E 2.1
+
+## 10.0.2
+
+- Fixed runtime errors for Foundry v10 and DND5E 2.1
+
+## 10.0.0
+
+- Updated for Foundry v10 and DND5E 2.1
+
 ## 0.1.07
 
 - Fixes for "visible" errors or markers not appearing.

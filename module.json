@@ -1,32 +1,37 @@
 {
-    "name": "Next-Up",
-    "title": "Next Up",
-    "description": "Several Combat Enhancements, pan to combatant, open sheets and turn markers.",
-    "version": "0.1.10",
-    "author" : "Kandashi",
-    "manifestPlusVersion": "1.0.0",
-    "authors": [
-      {
-        "name": "Kandashi",
-        "url": "https://github.com/kandashi",
-        "discord": "Kandashi (He/Him)#6698",
-        "patreon": "Kandashi"
-      }
-    ],
-    "esmodules": [
-      "/src/nextUp.js"        
-  ],
-  "socket": true,
-  "scripts": [
-    "greensock/dist/gsap.min.js"
-  ],
-  "media": [
+  "id": "Next-Up",
+  "title": "Next Up",
+  "description": "Several Combat Enhancements, pan to combatant, open sheets and turn markers.",
+  "version": "11.0",
+  "authors": [
     {
-      "type": "video",
-      "url": "https://github.com/kandashi/Next-Up/blob/main/Images/Next%20Up%20full%20demo.webm",
-      "loop": true
+      "name": "Kandashi",
+      "url": "https://github.com/kandashi",
+      "discord": "Kandashi (He/Him)#6698",
+      "patreon": "Kandashi"
+    },
+    {
+      "name": "Greg Pola | Trazzm",
+      "url": "https://github.com/gregpola",
+      "discord": "Trazzm#1390",
+      "flags": {}
     }
   ],
+  "esmodules": [
+    "/src/nextUp.js"
+  ],
+  "socket": true,
+  "relationships": {
+    "systems": [
+      {
+        "id": "dnd5e",
+        "type": "system",
+        "compatibility": {
+          "minimum": "2.0.3"
+        }
+      }
+    ]
+  },
   "languages": [
     {
       "lang": "en",
@@ -39,11 +44,15 @@
       "path": "languages/es.json"
     }
   ],
-    "url": "https://github.com/kandashi/Next-Up",
-    "manifest": "https://raw.githubusercontent.com/kandashi/Next-Up/main/module.json",
-    "download": "https://github.com/kandashi/Next-Up/archive/main.zip",
-    "minimumCoreVersion": "0.8.5",
-    "compatibleCoreVersion": "9.2",
-    "allowBugReporter": true,
-    "bugs": "https://github.com/kandashi/Next-Up/issues"
+  "compatibility": {
+    "minimum": "11.305",
+    "verified": "11.305",
+    "maximum": "11"
+  },
+  "url": "https://github.com/gregpola/Next-Up",
+  "manifest": "https://github.com/gregpola/Next-Up/releases/latest/download/module.json",
+  "download": "https://github.com/gregpola/Next-Up/releases/latest/download/module.zip",
+  "changelog": "https://raw.githubusercontent.com/gregpola/Next-Up/main/changelog.md",
+  "readme": "https://raw.githubusercontent.com/gregpola/Next-Up/main/README.md",
+  "bugs": "https://github.com/gregpola/Next-Up/issues"
 }
